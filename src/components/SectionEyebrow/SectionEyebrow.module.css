@@ -1,0 +1,29 @@
+.eyebrow {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: baseline;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.num {
+  font: var(--t-meta);
+  color: var(--section-muted);
+  letter-spacing: 0.06em;
+}
+
+.lbl {
+  font: var(--t-label);
+  letter-spacing: var(--tracking-loose);
+  text-transform: uppercase;
+  color: var(--section-muted);
+}
+
+.paren::before {
+  content: "( ";
+  color: var(--section-muted);
+}
+.paren::after {
+  content: " )";
+  color: var(--section-muted);
+}

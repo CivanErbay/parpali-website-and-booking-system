@@ -1,0 +1,46 @@
+.root {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.search {
+  flex: 1;
+  min-width: 12rem;
+  padding: var(--s-2) var(--s-3);
+  font: var(--t-body-sm);
+  color: var(--fg);
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-3);
+}
+
+.select {
+  padding: var(--s-2) var(--s-3);
+  font: var(--t-body-sm);
+  color: var(--fg);
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-3);
+}
+
+.search:focus-visible,
+.select:focus-visible,
+.apply:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.apply {
+  padding: var(--s-2) var(--s-5);
+  font: var(--t-h6);
+  color: var(--accent-fg);
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--r-5);
+  cursor: pointer;
+}
+
+.apply:hover {
+  background: var(--accent-hover);
+}

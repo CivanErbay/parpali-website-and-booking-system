@@ -1,0 +1,71 @@
+.chapter {
+  position: relative;
+  display: grid;
+  grid-template-columns: 12rem 1fr;
+  gap: var(--s-7);
+  padding: var(--s-9) var(--container-pad) var(--s-9);
+  max-width: var(--container-max);
+  margin: 0 auto;
+  border-top: 1px solid var(--section-border);
+}
+
+.rail {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  align-self: flex-start;
+  padding-top: var(--s-2);
+}
+
+.rail::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 2.5rem;
+  height: 1px;
+  background: var(--section-accent);
+}
+
+.num {
+  font: var(--t-meta);
+  letter-spacing: var(--tracking-loose);
+  text-transform: uppercase;
+  color: var(--section-accent);
+}
+
+.label {
+  font: var(--t-h3);
+  color: var(--section-text);
+  letter-spacing: var(--tracking-tight);
+}
+
+.counter {
+  font: var(--t-meta);
+  color: var(--section-muted);
+  letter-spacing: var(--tracking-loose);
+  text-transform: uppercase;
+  margin-top: var(--s-1);
+}
+
+.body {
+  min-width: 0;
+}
+
+@media (max-width: 60rem) {
+  .chapter {
+    grid-template-columns: 1fr;
+    gap: var(--s-5);
+    padding: var(--s-7) var(--container-pad);
+  }
+  .rail::before { width: 1.5rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  /* GSAP respects this via media-match; CSS fallback keeps rail visible if JS fails */
+  .rail, .body > [data-chapter-reveal] {
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}

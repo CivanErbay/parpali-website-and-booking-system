@@ -1,0 +1,21 @@
+node_modules/
+.env
+.env.local
+*.log
+.DS_Store
+.claude/settings.local.json
+
+# Next.js
+.next/
+next-env.d.ts
+out/
+tsconfig.tsbuildinfo
+
+# Payload
+/media/
+src/payload-types.ts
+
+# Legacy
+.webflow/
+.vite/
+dist/

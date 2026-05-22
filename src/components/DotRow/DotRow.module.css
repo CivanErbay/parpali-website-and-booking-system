@@ -1,0 +1,81 @@
+.section {
+  background-color: var(--section-bg);
+  background-image: var(--section-dotgrid);
+  background-size: var(--section-dotgrid-size);
+  color: var(--section-text);
+  border-bottom: 1px solid var(--section-border);
+  position: relative;
+}
+.sElev {
+  background-color: var(--section-bg-elev);
+  background-image: none;
+}
+
+.container {
+  max-width: var(--container-max, 80rem);
+  margin: 0 auto;
+  padding: 6rem var(--container-pad, 2rem);
+}
+
+.eyebrow {
+  display: grid;
+  grid-template-columns: 80px 1fr;
+  align-items: baseline;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+.eyebrowNum { font: var(--t-meta); color: var(--parpali-muted-override, var(--section-muted)); letter-spacing: 0.06em; }
+.eyebrowLbl { font: var(--t-label); letter-spacing: var(--tracking-loose); text-transform: uppercase; color: var(--parpali-muted-override, var(--section-muted)); }
+.paren::before { content: "( "; color: var(--parpali-muted-override, var(--section-muted)); }
+.paren::after { content: " )"; color: var(--parpali-muted-override, var(--section-muted)); }
+
+.heading {
+  font: 700 clamp(2rem, 3.2vw, 2.75rem)/1.08 var(--font-display);
+  letter-spacing: -0.025em;
+  color: var(--section-text);
+  text-wrap: balance;
+  margin: 0 0 1.5rem;
+  max-width: 55rem;
+}
+.heading :global(.lime) { color: var(--parpali-accent-override, var(--section-accent)); }
+
+.body {
+  font: var(--t-body-lg);
+  color: var(--section-text-2);
+  margin-bottom: 2rem;
+  max-width: 70ch;
+}
+.body p { margin: 0 0 0.75rem; }
+.body p:last-child { margin-bottom: 0; }
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+  max-width: 55rem;
+}
+
+.row {
+  display: grid;
+  grid-template-columns: 12px 1fr;
+  gap: 0.75rem;
+  align-items: baseline;
+}
+
+.dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 999px;
+  background: var(--parpali-accent-override, var(--section-accent));
+  margin-top: 0.5rem;
+}
+
+.row p {
+  font: var(--t-body);
+  color: var(--section-text-2);
+  margin: 0;
+}
+.row strong {
+  color: var(--section-text);
+  font-weight: 600;
+}

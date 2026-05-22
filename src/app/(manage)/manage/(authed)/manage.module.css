@@ -1,0 +1,246 @@
+/* Shared layout primitives for the manage dashboard pages. */
+
+.page {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  max-width: var(--container-max);
+}
+
+.header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: var(--s-4);
+}
+
+.headMain {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.eyebrow {
+  margin: 0;
+  font: var(--t-eyebrow);
+  letter-spacing: var(--tracking-loose);
+  text-transform: uppercase;
+  color: var(--accent-hover);
+}
+
+.title {
+  margin: 0;
+  font: var(--t-h1);
+  color: var(--fg);
+}
+
+.subtitle {
+  margin: 0;
+  font: var(--t-body-sm);
+  color: var(--fg-2);
+}
+
+.kpis {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-3);
+}
+
+.kpi {
+  min-width: 7rem;
+  padding: var(--s-3) var(--s-4);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+}
+
+.kpiValue {
+  font: var(--t-h2);
+  color: var(--fg);
+}
+
+.kpiLabel {
+  font: var(--t-meta);
+  color: var(--fg-3);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.card {
+  padding: var(--s-5);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--r-4);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.sectionTitle {
+  margin: 0;
+  font: var(--t-h3);
+  color: var(--fg);
+}
+
+.empty {
+  padding: var(--s-7) var(--s-5);
+  text-align: center;
+  font: var(--t-body);
+  color: var(--fg-3);
+  background: var(--bg-elev);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-4);
+}
+
+.primaryBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-3) var(--s-5);
+  font: var(--t-h5);
+  color: var(--accent-fg);
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--r-5);
+  cursor: pointer;
+  text-decoration: none;
+  transition: background-color 150ms ease-out;
+}
+
+.primaryBtn:hover {
+  background: var(--accent-hover);
+}
+
+.primaryBtn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.ghostBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-2) var(--s-4);
+  font: var(--t-h6);
+  color: var(--fg-2);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-5);
+  cursor: pointer;
+  text-decoration: none;
+  transition: border-color 150ms ease-out, color 150ms ease-out;
+}
+
+.ghostBtn:hover {
+  color: var(--fg);
+  border-color: var(--fg-3);
+}
+
+.ghostBtn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.adminNote {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  font: var(--t-body-sm);
+  color: var(--fg-2);
+  background: var(--accent-soft);
+  border-radius: var(--r-3);
+}
+
+.scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--r-4);
+}
+
+.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-elev);
+}
+
+.dataTable th {
+  padding: var(--s-3) var(--s-4);
+  text-align: left;
+  font: var(--t-h6);
+  color: var(--fg-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-strong);
+  white-space: nowrap;
+}
+
+.dataTable td {
+  padding: var(--s-3) var(--s-4);
+  font: var(--t-body-sm);
+  color: var(--fg);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.dataTable tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.dl {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  margin: 0;
+}
+
+.dlRow {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding: var(--s-2) 0;
+  border-bottom: 1px solid var(--border);
+}
+
+.dlRow:last-child {
+  border-bottom: 0;
+}
+
+.dlKey {
+  font: var(--t-h6);
+  color: var(--fg-3);
+}
+
+.dlVal {
+  margin: 0;
+  font: var(--t-body-sm);
+  color: var(--fg);
+  text-align: right;
+}
+
+.tag {
+  display: inline-block;
+  padding: 1px var(--s-2);
+  font: var(--t-meta);
+  border-radius: var(--r-2);
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  color: var(--fg-2);
+}
+
+.tagOn {
+  background: var(--status-confirmed-soft);
+  border-color: var(--status-confirmed);
+  color: var(--status-confirmed);
+}
+
+.tagOff {
+  background: var(--status-cancelled-soft);
+  border-color: var(--status-cancelled);
+  color: var(--status-cancelled);
+}

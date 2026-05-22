@@ -1,0 +1,114 @@
+.scroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--r-4);
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-elev);
+}
+
+.table thead th {
+  padding: var(--s-3) var(--s-4);
+  text-align: left;
+  font: var(--t-h6);
+  color: var(--fg-3);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-strong);
+  white-space: nowrap;
+}
+
+.table tbody td {
+  padding: var(--s-3) var(--s-4);
+  font: var(--t-body-sm);
+  color: var(--fg);
+  border-bottom: 1px solid var(--border);
+  white-space: nowrap;
+}
+
+.table tbody tr:last-child td {
+  border-bottom: 0;
+}
+
+.table tbody tr:hover {
+  background: var(--bg);
+}
+
+.mono {
+  font-family: var(--font-mono);
+}
+
+.name {
+  font-weight: 500;
+}
+
+.source {
+  color: var(--fg-3);
+}
+
+.dateLink {
+  color: var(--accent-hover);
+  text-decoration: none;
+}
+
+.dateLink:hover {
+  text-decoration: underline;
+}
+
+.dateLink:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.badge {
+  display: inline-block;
+  padding: 2px var(--s-2);
+  font: var(--t-meta);
+  border-radius: var(--r-2);
+  border: 1px solid var(--fg-3);
+  color: var(--fg-2);
+}
+
+.badge[data-status='pending'] {
+  background: var(--status-pending-soft);
+  border-color: var(--status-pending);
+  color: var(--status-pending);
+}
+.badge[data-status='confirmed'] {
+  background: var(--status-confirmed-soft);
+  border-color: var(--status-confirmed);
+  color: var(--status-confirmed);
+}
+.badge[data-status='seated'] {
+  background: var(--status-seated-soft);
+  border-color: var(--status-seated);
+  color: var(--status-seated);
+}
+.badge[data-status='completed'] {
+  background: var(--status-completed-soft);
+  border-color: var(--status-completed);
+  color: var(--status-completed);
+}
+.badge[data-status='no-show'] {
+  background: var(--status-noshow-soft);
+  border-color: var(--status-noshow);
+  color: var(--status-noshow);
+}
+.badge[data-status='cancelled'] {
+  background: var(--status-cancelled-soft);
+  border-color: var(--status-cancelled);
+  color: var(--status-cancelled);
+}
+
+.empty {
+  padding: var(--s-7);
+  text-align: center;
+  font: var(--t-body);
+  color: var(--fg-3);
+  background: var(--bg-elev);
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-4);
+}

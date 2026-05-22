@@ -1,0 +1,52 @@
+.btn {
+  width: 2.25rem;
+  height: 2.25rem;
+  padding: 0;
+  border: 1px solid var(--border);
+  background: transparent;
+  border-radius: var(--r-5);
+  color: var(--fg);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 220ms ease-out, color 220ms ease-out, border-color 220ms ease-out;
+}
+
+.btn:hover {
+  background: var(--bg-elev);
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+.btn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.iconWrap {
+  position: relative;
+  width: 18px;
+  height: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.icon {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  transition: opacity 220ms ease-out, transform 320ms ease-out;
+}
+
+/* Sun visible in light mode; moon visible in dark mode */
+.sun  { opacity: 1; transform: rotate(0deg) scale(1); }
+.moon { opacity: 0; transform: rotate(-90deg) scale(0.6); }
+
+:global([data-mode="dark"]) .sun  { opacity: 0; transform: rotate(90deg) scale(0.6); }
+:global([data-mode="dark"]) .moon { opacity: 1; transform: rotate(0deg) scale(1); }
+
+@media (prefers-reduced-motion: reduce) {
+  .btn, .icon { transition: none; }
+}

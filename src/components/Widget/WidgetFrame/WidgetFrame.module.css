@@ -1,0 +1,36 @@
+.root {
+  box-sizing: border-box;
+  max-width: 30rem;
+  margin: 0 auto;
+  padding: var(--s-5);
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-sans);
+}
+
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin-bottom: var(--s-5);
+  padding-bottom: var(--s-4);
+  border-bottom: 1px solid var(--border);
+}
+
+.logo {
+  height: 2.25rem;
+  width: auto;
+  object-fit: contain;
+  align-self: flex-start;
+}
+
+.brand {
+  font: var(--t-h3);
+  color: var(--accent-hover);
+}
+
+.headline {
+  margin: 0;
+  font: var(--t-h1);
+  color: var(--fg);
+}

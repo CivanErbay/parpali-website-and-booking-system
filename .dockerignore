@@ -1,0 +1,8 @@
+node_modules
+.next
+.env*
+media
+.git
+.claude
+docs
+*.md

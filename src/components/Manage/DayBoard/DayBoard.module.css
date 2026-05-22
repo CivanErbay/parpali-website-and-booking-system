@@ -1,0 +1,514 @@
+.root {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+
+/* --- Toolbar ------------------------------------------------------------ */
+
+.toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.newBtn {
+  padding: var(--s-3) var(--s-5);
+  font: var(--t-h5);
+  color: var(--accent-fg);
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--r-5);
+  cursor: pointer;
+  transition: background-color 150ms ease-out;
+}
+
+.newBtn:hover {
+  background: var(--accent-hover);
+}
+
+.newBtn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.closedTag {
+  font: var(--t-body-sm);
+  color: var(--fg-3);
+}
+
+.error {
+  font: var(--t-body-sm);
+  color: var(--status-noshow);
+}
+
+/* --- Unassigned tray --------------------------------------------------- */
+
+.tray {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+  padding: var(--s-3) var(--s-4);
+  background: var(--status-pending-soft);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-3);
+}
+
+.trayLabel {
+  font: var(--t-h6);
+  color: var(--status-pending);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.trayItems {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.chip {
+  padding: var(--s-2) var(--s-3);
+  font: var(--t-body-sm);
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-left: 3px solid var(--status-pending);
+  border-radius: var(--r-2);
+  cursor: grab;
+}
+
+.chip:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* --- Timeline grid ----------------------------------------------------- */
+
+.gridScroll {
+  overflow-x: auto;
+  border: 1px solid var(--border);
+  border-radius: var(--r-4);
+  background: var(--bg-elev);
+}
+
+.grid {
+  min-width: 52rem;
+}
+
+.axisRow,
+.tableRow {
+  display: flex;
+  align-items: stretch;
+}
+
+.tableRow {
+  border-top: 1px solid var(--border);
+}
+
+.cornerCell,
+.tableCell {
+  flex: 0 0 9rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 2px;
+  padding: var(--s-2) var(--s-3);
+  border-right: 1px solid var(--border);
+}
+
+.cornerCell {
+  background: var(--bg-elev);
+}
+
+.tableLabel {
+  font: var(--t-h5);
+  color: var(--fg);
+}
+
+.tableMeta {
+  font: var(--t-meta);
+  color: var(--fg-3);
+}
+
+.axisTrack {
+  position: relative;
+  flex: 1;
+  height: 2rem;
+}
+
+.tick {
+  position: absolute;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  font: var(--t-meta);
+  color: var(--fg-3);
+}
+
+.track {
+  position: relative;
+  flex: 1;
+  height: 3.5rem;
+  background: var(--bg);
+}
+
+.trackDrop {
+  background: var(--accent-soft);
+}
+
+.gridline {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: var(--border);
+}
+
+.block {
+  position: absolute;
+  top: var(--s-1);
+  bottom: var(--s-1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 1px;
+  padding: 2px var(--s-2);
+  overflow: hidden;
+  text-align: left;
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-left: 3px solid var(--fg-3);
+  border-radius: var(--r-2);
+  cursor: grab;
+}
+
+.block:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.blockTime {
+  font: var(--t-meta);
+  color: var(--fg-2);
+}
+
+.blockName {
+  font: var(--t-h6);
+  color: var(--fg);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.blockParty {
+  font: var(--t-meta);
+  color: var(--fg-3);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.noTables {
+  padding: var(--s-6);
+  text-align: center;
+  font: var(--t-body);
+  color: var(--fg-3);
+}
+
+/* --- Status color mapping (chip + block) ------------------------------- */
+
+.block[data-status='pending'],
+.chip[data-status='pending'] {
+  background: var(--status-pending-soft);
+  border-left-color: var(--status-pending);
+}
+.block[data-status='confirmed'],
+.chip[data-status='confirmed'] {
+  background: var(--status-confirmed-soft);
+  border-left-color: var(--status-confirmed);
+}
+.block[data-status='seated'],
+.chip[data-status='seated'] {
+  background: var(--status-seated-soft);
+  border-left-color: var(--status-seated);
+}
+.block[data-status='completed'],
+.chip[data-status='completed'] {
+  background: var(--status-completed-soft);
+  border-left-color: var(--status-completed);
+}
+.block[data-status='no-show'],
+.chip[data-status='no-show'] {
+  background: var(--status-noshow-soft);
+  border-left-color: var(--status-noshow);
+}
+
+/* --- Scrim + panel + dialog ------------------------------------------- */
+
+.scrim {
+  position: fixed;
+  inset: 0;
+  background: var(--scrim);
+  z-index: 40;
+}
+
+.panel {
+  position: fixed;
+  top: 0;
+  right: 0;
+  z-index: 50;
+  width: min(24rem, 100vw);
+  height: 100dvh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  padding: var(--s-5);
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+}
+
+.dialog {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 50;
+  width: min(28rem, 92vw);
+  max-height: 90dvh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  padding: var(--s-5);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-4);
+  box-shadow: var(--shadow-lg);
+}
+
+.panelHead {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.panelTitle {
+  margin: 0;
+  font: var(--t-h2);
+  color: var(--fg);
+}
+
+.closeBtn {
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  font-size: 1rem;
+  color: var(--fg-2);
+  background: transparent;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-5);
+  cursor: pointer;
+}
+
+.closeBtn:hover {
+  color: var(--fg);
+}
+
+.closeBtn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.detailList {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  margin: 0;
+}
+
+.detailList div {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--s-4);
+  padding-bottom: var(--s-2);
+  border-bottom: 1px solid var(--border);
+}
+
+.detailList dt {
+  font: var(--t-h6);
+  color: var(--fg-3);
+}
+
+.detailList dd {
+  margin: 0;
+  font: var(--t-body-sm);
+  color: var(--fg);
+  text-align: right;
+}
+
+.panelSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.panelSubtitle {
+  margin: 0;
+  font: var(--t-h5);
+  color: var(--fg);
+}
+
+.statusRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+.statusBtn {
+  padding: var(--s-2) var(--s-3);
+  font: var(--t-h6);
+  color: var(--fg-2);
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-2);
+  cursor: pointer;
+}
+
+.statusBtn:hover {
+  color: var(--fg);
+}
+
+.statusBtn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.statusBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.statusBtnActive[data-status='pending'] {
+  background: var(--status-pending-soft);
+  border-color: var(--status-pending);
+  color: var(--status-pending);
+}
+.statusBtnActive[data-status='confirmed'] {
+  background: var(--status-confirmed-soft);
+  border-color: var(--status-confirmed);
+  color: var(--status-confirmed);
+}
+.statusBtnActive[data-status='seated'] {
+  background: var(--status-seated-soft);
+  border-color: var(--status-seated);
+  color: var(--status-seated);
+}
+.statusBtnActive[data-status='completed'] {
+  background: var(--status-completed-soft);
+  border-color: var(--status-completed);
+  color: var(--status-completed);
+}
+.statusBtnActive[data-status='no-show'] {
+  background: var(--status-noshow-soft);
+  border-color: var(--status-noshow);
+  color: var(--status-noshow);
+}
+.statusBtnActive[data-status='cancelled'] {
+  background: var(--status-cancelled-soft);
+  border-color: var(--status-cancelled);
+  color: var(--status-cancelled);
+}
+
+.tablePick {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--s-2);
+}
+
+.tablePickItem {
+  display: flex;
+  align-items: center;
+  gap: var(--s-2);
+  font: var(--t-body-sm);
+  color: var(--fg);
+}
+
+.tablePickMeta {
+  color: var(--fg-3);
+}
+
+.saveBtn {
+  align-self: flex-start;
+  padding: var(--s-3) var(--s-5);
+  font: var(--t-h5);
+  color: var(--accent-fg);
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--r-5);
+  cursor: pointer;
+}
+
+.saveBtn:hover {
+  background: var(--accent-hover);
+}
+
+.saveBtn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.saveBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+/* --- Walk-in form ------------------------------------------------------ */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.formRow {
+  display: flex;
+  gap: var(--s-3);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+  flex: 1;
+}
+
+.fieldLabel {
+  font: var(--t-h6);
+  color: var(--fg-2);
+}
+
+.input {
+  width: 100%;
+  padding: var(--s-2) var(--s-3);
+  font: var(--t-body);
+  color: var(--fg);
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-3);
+}
+
+.input:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+@media (max-width: 40rem) {
+  .tablePick {
+    grid-template-columns: 1fr;
+  }
+}

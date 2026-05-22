@@ -1,0 +1,199 @@
+/* Parpali · Unified Design Tokens (v3 — Editorial Tuscan)
+   ADR-0011 (v3): Cypress + Saffron + Ivory palette in two cinematic modes
+   (light/dark), Fraunces + Manrope + Space Mono via next/font.
+   1rem = 16px (browser default).
+
+   Mode-switching via `data-mode="light|dark"` on <html>. Default = light.
+   Smooth swap via 280 ms transition on :root (no-op under reduced-motion). */
+
+:root,
+[data-mode="light"] {
+    /* ──────────────────────────────────────────────────────────────
+       PALETTE — Cypress + Saffron + Ivory · light (default) */
+    --bg: #f5f0e4;             /* warm ivory page bg */
+    --bg-elev: #ece5d2;        /* toasted ivory cards/bands */
+    --bg-inverse: #1f2e1f;     /* deep cypress (for dark sections / CTA bands) */
+    --fg: #1f2e1f;             /* cypress black-green — AAA on ivory */
+    --fg-2: #4a5a4a;           /* muted cypress — AA body */
+    --fg-3: #6e7a6c;           /* olive-gray — AA large */
+    --accent: #c28b2c;         /* saffron / ocker — CTA + highlight */
+    --accent-fg: #fffcf5;      /* warm white on accent */
+    --accent-hover: #a37121;   /* darker saffron */
+    --accent-soft: #e6c178;    /* pale saffron — chips, marks */
+    --border: #d6ccb4;         /* warm hairline */
+    --border-strong: #b8ac8f;  /* divider on light */
+    --focus-ring: #c28b2c;
+}
+
+[data-mode="dark"] {
+    --bg: #15201a;             /* deep cypress night */
+    --bg-elev: #1f2e25;        /* elevated cypress */
+    --bg-inverse: #f5f0e4;     /* ivory for inverted sections */
+    --fg: #f2ebda;             /* warm ivory text */
+    --fg-2: #c4bda9;           /* muted warm */
+    --fg-3: #8e9388;           /* sage gray */
+    --accent: #e8b355;         /* brighter saffron — visible on dark */
+    --accent-fg: #15201a;
+    --accent-hover: #d99e3a;
+    --accent-soft: #4a3a1c;
+    --border: #2e3b30;
+    --border-strong: #4a5840;
+    --focus-ring: #e8b355;
+}
+
+:root {
+    /* ──────────────────────────────────────────────────────────────
+       SECTION-LEVEL aliases (derived). Legacy components reading
+       --section-* automatically inherit mode changes. */
+    --section-bg: var(--bg);
+    --section-bg-elev: var(--bg-elev);
+    --section-text: var(--fg);
+    --section-text-2: var(--fg-2);
+    --section-muted: var(--fg-3);
+    --section-border: var(--border);
+    --section-border-strong: var(--border-strong);
+    --section-accent: var(--accent);
+    --section-highlight: var(--accent);
+    --section-card-bg: var(--bg-elev);
+    --section-card-border: var(--border);
+    --section-dotgrid: none;
+    --section-dotgrid-size: 1rem 1rem;
+
+    /* Back-compat shims for older components */
+    --fg-on-lime: var(--accent-fg);
+    --fg-on-paper: var(--fg);
+    --fg-on-paper-2: var(--fg-2);
+    --border-on-paper: var(--border);
+
+    /* ──────────────────────────────────────────────────────────────
+       LEGACY Parpali brand vars (kept so any imported component
+       referencing --parpali-* still renders; new code uses semantic vars). */
+    --parpali-red: #a4161a;
+    --parpali-gold: #c99537;
+    --parpali-espresso: #2a1810;
+    --parpali-sand: #ede3d3;
+    --parpali-cream: #fbf7f1;
+    --parpali-olive: #5c6b3f;
+    --parpali-terracotta: #c46a3a;
+
+    /* ──────────────────────────────────────────────────────────────
+       RADIUS — editorial, almost flat */
+    --r-0: 0;
+    --r-1: 0.125rem;
+    --r-2: 0.25rem;
+    --r-3: 0.375rem;
+    --r-4: 0.5rem;
+    --r-5: 999px;
+
+    /* ──────────────────────────────────────────────────────────────
+       SPACING — 4/8 rhythm, identical to v2 (v3 just uses bigger steps more) */
+    --s-1: 0.25rem;
+    --s-2: 0.5rem;
+    --s-3: 0.75rem;
+    --s-4: 1rem;
+    --s-5: 1.5rem;
+    --s-6: 2rem;
+    --s-7: 3rem;
+    --s-8: 4rem;
+    --s-9: 6rem;
+    --s-10: 8rem;
+    --s-11: 10rem;       /* NEW — extra-generous editorial section padding */
+
+    /* ──────────────────────────────────────────────────────────────
+       SHADOWS — barely any; editorial relies on space + hairlines */
+    --shadow-1: 0 0 0 1px var(--border);
+    --shadow-2: 0 0.75rem 2rem -0.5rem rgba(0, 0, 0, 0.12);
+    --shadow-lg: 0 1.5rem 3.5rem -1rem rgba(0, 0, 0, 0.18);
+
+    /* ──────────────────────────────────────────────────────────────
+       STATUS COLORS — reservation lifecycle for the manage dashboard
+       (ADR-0012). `-soft` is a tinted block background; the solid tone
+       is for text / borders / dots on that background. */
+    --status-pending: #9c6e16;
+    --status-pending-soft: #f0e2c2;
+    --status-confirmed: #356b42;
+    --status-confirmed-soft: #d8e6d6;
+    --status-seated: #2f5e70;
+    --status-seated-soft: #d2e2e6;
+    --status-completed: #5b6659;
+    --status-completed-soft: #e4e2d6;
+    --status-noshow: #a4161a;
+    --status-noshow-soft: #efd4ce;
+    --status-cancelled: #807c6c;
+    --status-cancelled-soft: #e6e2d6;
+
+    /* Modal / drawer scrim (ADR-0013 dashboard) */
+    --scrim: rgba(20, 26, 20, 0.46);
+
+    /* ──────────────────────────────────────────────────────────────
+       TYPE FAMILIES — next/font sets --font-fraunces, --font-manrope,
+       --font-space-mono on <html> in src/app/(site)/layout.tsx. */
+    --font-display: var(--font-fraunces), Georgia, "Times New Roman", serif;
+    --font-sans: var(--font-manrope), ui-sans-serif, system-ui, -apple-system,
+        "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+    --font-mono: var(--font-space-mono), "JetBrains Mono", ui-monospace, "SF Mono",
+        Menlo, Consolas, monospace;
+
+    /* ──────────────────────────────────────────────────────────────
+       TYPE SCALE — editorial Tuscan, with Fraunces Italic as hero accent */
+    --t-display-xl: 400 clamp(3.5rem, 8vw, 7rem)/1.04 var(--font-display);
+    --t-display-lg: 400 clamp(2.5rem, 5vw, 4.5rem)/1.06 var(--font-display);
+
+    --t-h1: 500 clamp(1.875rem, 3.5vw, 2.75rem)/1.15 var(--font-display);
+    --t-h2: 500 1.5rem/1.25 var(--font-display);
+    --t-h3: 500 1.125rem/1.3 var(--font-sans);
+    --t-h4: 500 1rem/1.35 var(--font-sans);
+    --t-h5: 600 0.875rem/1.4 var(--font-sans);
+    --t-h6: 600 0.75rem/1.4 var(--font-sans);
+
+    --t-body: 400 1rem/1.65 var(--font-sans);
+    --t-body-lg: 400 1.125rem/1.65 var(--font-sans);
+    --t-body-sm: 400 0.875rem/1.55 var(--font-sans);
+
+    --t-menu-item: 500 0.9375rem/1.35 var(--font-sans);        /* kompakter */
+    --t-menu-price: 500 0.875rem/1 var(--font-mono);
+    --t-menu-desc: 400 0.8125rem/1.45 var(--font-sans);
+
+    --t-quote: 400 italic clamp(1.5rem, 2.5vw, 2rem)/1.4 var(--font-display);
+    --t-display-italic: 400 italic clamp(2.5rem, 5vw, 4.5rem)/1.1 var(--font-display);
+
+    --t-label: 500 0.6875rem/1.3 var(--font-sans);
+    --t-eyebrow: 500 0.6875rem/1.3 var(--font-sans);
+    --t-meta: 400 0.75rem/1.4 var(--font-mono);
+    --t-mono-lg: 400 1rem/1.1 var(--font-mono);
+    --t-mono-md: 400 0.875rem/1.1 var(--font-mono);
+
+    --tracking-tight: -0.01em;
+    --tracking-loose: 0.22em;       /* editorial eyebrow tracking — looser */
+
+    /* ──────────────────────────────────────────────────────────────
+       LAYOUT — generous editorial padding */
+    --container-max: 80rem;
+    --container-pad: 2.5rem;        /* mehr Atmen vs v2 (2rem) */
+    --container-pad-narrow: 1.5rem; /* mobile */
+    --nav-h: 4.5rem;
+
+    font-family: var(--font-sans);
+    color: var(--fg);
+    background: var(--bg);
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+
+    /* Smooth mode swap */
+    transition: background-color 280ms ease-out, color 280ms ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :root { transition: none; }
+}
+
+:root *,
+[data-mode] * {
+    box-sizing: border-box;
+}
+
+::selection {
+    background: var(--accent);
+    color: var(--accent-fg);
+}

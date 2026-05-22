@@ -1,0 +1,49 @@
+.section {
+  width: 100%;
+  padding: var(--s-10) var(--container-pad);
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+}
+
+.elev { background: var(--bg-elev); color: var(--fg); }
+.inverse { background: var(--bg-inverse); color: var(--accent-fg); border-color: var(--bg-inverse); }
+
+.inner {
+  max-width: 50rem;
+  margin: 0 auto;
+  text-align: center;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+}
+
+.glyph {
+  font: 400 italic clamp(4rem, 8vw, 7rem)/0.8 var(--font-display);
+  color: var(--accent);
+  line-height: 0;
+  margin-top: 0.5rem;
+  user-select: none;
+}
+
+.quote {
+  font: var(--t-display-italic);
+  margin: 0;
+  color: inherit;
+  max-width: 38rem;
+}
+
+.attribution {
+  font: var(--t-eyebrow);
+  letter-spacing: var(--tracking-loose);
+  text-transform: uppercase;
+  color: var(--fg-3);
+  font-style: normal;
+}
+
+.inverse .attribution { color: rgba(255, 255, 255, 0.68); }
+
+@media (max-width: 640px) {
+  .section { padding: var(--s-9) var(--s-5); }
+}

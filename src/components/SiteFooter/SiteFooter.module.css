@@ -1,0 +1,114 @@
+.footer {
+  border-top: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.container {
+  max-width: var(--container-max, 80rem);
+  margin: 0 auto;
+  padding: var(--s-9) var(--container-pad) var(--s-5);
+}
+
+.top {
+  display: grid;
+  grid-template-columns: minmax(0, 1.2fr) minmax(0, 2fr);
+  gap: var(--s-8);
+  align-items: start;
+  padding-bottom: var(--s-7);
+}
+
+.brandCol {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.mark {
+  text-decoration: none;
+  color: var(--fg);
+  line-height: 1;
+}
+
+.markItalic {
+  font: 400 italic clamp(2rem, 3.5vw, 2.75rem)/1 var(--font-display);
+  letter-spacing: -0.01em;
+}
+
+.tagline {
+  font: var(--t-body-sm);
+  color: var(--fg-3);
+  max-width: 22rem;
+  margin: 0;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--s-6);
+  justify-items: start;
+}
+
+.col {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.eyebrow {
+  font: var(--t-eyebrow);
+  letter-spacing: var(--tracking-loose);
+  text-transform: uppercase;
+  color: var(--fg-3);
+  margin-bottom: var(--s-2);
+}
+
+.link {
+  font: 400 0.9375rem/1.5 var(--font-sans);
+  color: var(--fg-2);
+  text-decoration: none;
+  transition: color 220ms ease-out;
+}
+.link:hover { color: var(--accent); }
+.link:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 4px;
+  border-radius: var(--r-2);
+}
+
+.bigMark {
+  font: 400 italic clamp(5rem, 18vw, 14rem)/0.85 var(--font-display);
+  color: var(--fg);
+  opacity: 0.06;
+  text-align: center;
+  user-select: none;
+  margin: var(--s-5) 0 var(--s-3);
+  letter-spacing: -0.02em;
+  line-height: 0.85;
+}
+
+.bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-3);
+  padding-top: var(--s-5);
+  border-top: 1px solid var(--border);
+  font: var(--t-body-sm);
+  color: var(--fg-3);
+}
+
+@media (max-width: 820px) {
+  .top { grid-template-columns: 1fr; gap: var(--s-6); }
+  .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .bottom { flex-direction: column; align-items: flex-start; gap: var(--s-2); }
+}
+
+@media (max-width: 480px) {
+  .grid { grid-template-columns: 1fr; gap: var(--s-5); }
+  .container { padding: var(--s-8) var(--container-pad-narrow) var(--s-4); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .link { transition: none; }
+}

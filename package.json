@@ -1,0 +1,53 @@
+{
+  "name": "parpali-website-v3",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Parpali restaurant website — Next.js 16 + Payload 3 CMS. Italian + international cuisine, table booking, menu, gallery.",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "payload": "payload",
+    "generate:types": "payload generate:types",
+    "generate:importmap": "payload generate:importmap",
+    "seed": "tsx --env-file=.env.local scripts/seed.ts",
+    "migrate:reservations": "tsx --env-file=.env.local scripts/migrate-reservations.ts"
+  },
+  "dependencies": {
+    "@gsap/react": "^2.1.2",
+    "@payloadcms/db-mongodb": "^3.84.1",
+    "@payloadcms/next": "^3.84.1",
+    "@payloadcms/richtext-lexical": "^3.84.1",
+    "@payloadcms/storage-s3": "^3.84.1",
+    "graphql": "^16.14.0",
+    "gsap": "^3.15.0",
+    "lenis": "^1.3.23",
+    "next": "^16.2.6",
+    "payload": "^3.84.1",
+    "posthog-js": "^1.373.4",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "resend": "^4.0.0",
+    "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "@types/node": "^22.0.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "tsx": "^4.21.0",
+    "typescript": "^5.4.0",
+    "vitest": "^3.0.0"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "core-js",
+      "esbuild",
+      "protobufjs",
+      "sharp"
+    ]
+  }
+}

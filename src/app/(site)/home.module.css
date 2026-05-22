@@ -1,0 +1,177 @@
+.main {
+  background: var(--bg);
+  color: var(--fg);
+}
+
+.eyebrow {
+  font: var(--t-eyebrow);
+  letter-spacing: var(--tracking-loose);
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+
+/* ── Magazine intro (asymmetric 7:5 grid) ──────────── */
+.intro {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--s-10) var(--container-pad);
+}
+
+.introGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
+  gap: var(--s-9);
+  align-items: start;
+}
+
+.introQuote {
+  font: var(--t-display-italic);
+  color: var(--fg);
+  margin: 0;
+  max-width: 24rem;
+  letter-spacing: -0.01em;
+  position: relative;
+}
+.introQuote::before {
+  content: '';
+  display: block;
+  width: 3rem;
+  height: 1px;
+  background: var(--accent);
+  margin-bottom: var(--s-5);
+}
+
+.introCopy {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+}
+.introCopy p {
+  font: var(--t-body-lg);
+  color: var(--fg-2);
+  margin: 0;
+  max-width: 32rem;
+}
+
+/* ── Opening hours ─────────────────────────────────── */
+.hoursSection {
+  width: 100%;
+  background: var(--bg-elev);
+  padding: var(--s-10) var(--container-pad);
+}
+
+.hoursInner {
+  max-width: 38rem;
+  margin: 0 auto;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  align-items: center;
+}
+
+.hoursTitle {
+  font: var(--t-h1);
+  color: var(--fg);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.hoursList {
+  list-style: none;
+  margin: var(--s-4) 0 0;
+  padding: 0;
+  width: 100%;
+}
+
+.hoursRow {
+  display: grid;
+  grid-template-columns: 4rem 1fr auto;
+  align-items: baseline;
+  gap: var(--s-4);
+  padding: var(--s-3) 0;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+}
+.hoursRow:last-child { border-bottom: none; }
+
+.hoursDay {
+  font: 500 0.875rem/1 var(--font-sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--fg-2);
+}
+
+.hoursValue {
+  font: var(--t-mono-md);
+  color: var(--fg);
+  font-feature-settings: 'tnum';
+}
+
+.today .hoursDay,
+.today .hoursValue { color: var(--accent); }
+
+.todayBadge {
+  font: 600 0.625rem/1 var(--font-sans);
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--accent-fg);
+  background: var(--accent);
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--r-1);
+}
+
+/* ── Map full-bleed with floating card ─────────────── */
+.mapSection {
+  padding: var(--s-10) var(--container-pad);
+  background: var(--bg);
+}
+
+.mapFrame {
+  position: relative;
+  max-width: var(--container-max);
+  margin: 0 auto;
+}
+
+.mapCard {
+  position: absolute;
+  left: var(--s-6);
+  bottom: var(--s-6);
+  z-index: 2;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  padding: var(--s-5);
+  max-width: 22rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+  box-shadow: var(--shadow-2);
+}
+
+.mapAddress {
+  font: 400 1rem/1.55 var(--font-sans);
+  color: var(--fg);
+  margin: 0;
+  font-style: normal;
+}
+.mapAddress strong { font-weight: 500; }
+
+/* ── Responsive ───────────────────────────────────── */
+@media (max-width: 900px) {
+  .introGrid { grid-template-columns: 1fr; gap: var(--s-5); }
+  .introQuote { max-width: none; }
+}
+
+@media (max-width: 640px) {
+  .intro { padding: var(--s-8) var(--container-pad-narrow); }
+  .hoursSection { padding: var(--s-8) var(--container-pad-narrow); }
+  .hoursRow { grid-template-columns: 3rem 1fr auto; gap: var(--s-3); }
+  .hoursValue { font-size: 0.875rem; }
+  .mapSection { padding: var(--s-8) var(--container-pad-narrow); }
+  .mapCard {
+    position: static;
+    margin-top: -3rem;
+    margin-left: var(--s-3);
+    max-width: calc(100% - var(--s-6));
+  }
+}

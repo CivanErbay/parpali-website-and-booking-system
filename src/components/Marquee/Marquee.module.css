@@ -1,0 +1,47 @@
+.root {
+  width: 100%;
+  overflow: hidden;
+  border-top: 1px solid var(--border);
+  border-bottom: 1px solid var(--border);
+  padding: var(--s-4) 0;
+  user-select: none;
+}
+
+.track {
+  display: inline-flex;
+  white-space: nowrap;
+  animation: scroll var(--marquee-duration, 32s) linear infinite;
+  will-change: transform;
+}
+
+.reverse {
+  animation-direction: reverse;
+}
+
+.chunk {
+  flex-shrink: 0;
+  padding-right: 2rem;
+}
+
+.fraunces .chunk {
+  font: 400 italic clamp(1.25rem, 2vw, 1.625rem)/1 var(--font-display);
+  color: var(--fg-2);
+  letter-spacing: 0.01em;
+}
+
+.sans .chunk {
+  font: 500 0.8125rem/1 var(--font-sans);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--fg-3);
+}
+
+@keyframes scroll {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .track { animation: none; }
+  .chunk:nth-child(n+2) { display: none; }
+}
