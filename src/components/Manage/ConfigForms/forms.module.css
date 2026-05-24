@@ -1,0 +1,266 @@
+/* Shared styling for the manage config forms (settings, hours, tables). */
+
+.form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+}
+
+.sectionTitle {
+  margin: 0;
+  font: var(--t-h3);
+  color: var(--fg);
+}
+
+.card {
+  padding: var(--s-5);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--r-4);
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(13rem, 1fr));
+  gap: var(--s-4);
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+
+.label {
+  font: var(--t-h6);
+  color: var(--fg-2);
+}
+
+.hint {
+  font: var(--t-meta);
+  color: var(--fg-3);
+}
+
+.input,
+.select {
+  width: 100%;
+  padding: var(--s-2) var(--s-3);
+  font: var(--t-body-sm);
+  color: var(--fg);
+  background: var(--bg);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-3);
+}
+
+.input:focus-visible,
+.select:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.check {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  font: var(--t-body-sm);
+  color: var(--fg);
+}
+
+.list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.listRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--s-2);
+  padding: var(--s-3);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+}
+
+.rowField {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-1);
+}
+
+.rowFieldGrow {
+  flex: 1;
+  min-width: 8rem;
+}
+
+.inlineInput {
+  padding: var(--s-2) var(--s-3);
+  font: var(--t-body-sm);
+  color: var(--fg);
+  background: var(--bg-elev);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-3);
+}
+
+.inlineInput:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+.addBtn {
+  align-self: flex-start;
+  padding: var(--s-2) var(--s-4);
+  font: var(--t-h6);
+  color: var(--fg-2);
+  background: transparent;
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--r-3);
+  cursor: pointer;
+}
+
+.addBtn:hover {
+  color: var(--fg);
+  border-color: var(--fg-3);
+}
+
+.addBtn:focus-visible,
+.removeBtn:focus-visible,
+.saveBtn:focus-visible,
+.deleteBtn:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.removeBtn {
+  padding: var(--s-1) var(--s-3);
+  font: var(--t-meta);
+  color: var(--status-noshow);
+  background: transparent;
+  border: 1px solid var(--status-noshow);
+  border-radius: var(--r-2);
+  cursor: pointer;
+}
+
+.removeBtn:hover {
+  background: var(--status-noshow-soft);
+}
+
+.saveBar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.saveBtn {
+  padding: var(--s-3) var(--s-6);
+  font: var(--t-h5);
+  color: var(--accent-fg);
+  background: var(--accent);
+  border: 0;
+  border-radius: var(--r-5);
+  cursor: pointer;
+  transition: background-color 150ms ease-out;
+}
+
+.saveBtn:hover {
+  background: var(--accent-hover);
+}
+
+.saveBtn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.deleteBtn {
+  padding: var(--s-2) var(--s-4);
+  font: var(--t-h6);
+  color: var(--status-noshow);
+  background: transparent;
+  border: 1px solid var(--status-noshow);
+  border-radius: var(--r-5);
+  cursor: pointer;
+}
+
+.deleteBtn:hover {
+  background: var(--status-noshow-soft);
+}
+
+.status {
+  font: var(--t-body-sm);
+}
+
+.statusOk {
+  color: var(--status-confirmed);
+}
+
+.statusErr {
+  color: var(--status-noshow);
+}
+
+.empty {
+  font: var(--t-body-sm);
+  color: var(--fg-3);
+}
+
+/* Tables manager */
+
+.tableCard {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-4);
+  padding: var(--s-5);
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--r-4);
+}
+
+.tableCardHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.tableCardTitle {
+  margin: 0;
+  font: var(--t-h4);
+  color: var(--fg);
+}
+
+.checkGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(7rem, 1fr));
+  gap: var(--s-2);
+}
+
+/* Hours weekday rows */
+
+.weekday {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-4);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+}
+
+.weekdayHead {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.weekdayName {
+  font: var(--t-h5);
+  color: var(--fg);
+}

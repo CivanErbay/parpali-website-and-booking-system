@@ -5,6 +5,7 @@ import { SiteChrome } from './_chrome/SiteChrome'
 import { EditorialHero } from '../../components/EditorialHero/EditorialHero'
 import { Marquee } from '../../components/Marquee/Marquee'
 import { SignatureFeatured } from '../../components/SignatureFeatured/SignatureFeatured'
+import { AlternatingFeature } from '../../components/AlternatingFeature/AlternatingFeature'
 import { PullQuote } from '../../components/PullQuote/PullQuote'
 import { AtmosphereMosaic } from '../../components/AtmosphereMosaic/AtmosphereMosaic'
 import { FaqEditorial } from '../../components/FaqEditorial/FaqEditorial'
@@ -66,10 +67,24 @@ export default async function HomePage() {
   const heroB      = findBlock(layout, 'editorial-hero')
   const marqueeB   = findBlock(layout, 'home-marquee')
   const introB     = findBlock(layout, 'home-intro')
+  const signatureB = findBlock(layout, 'home-signature')
+  const featuresB  = findBlock(layout, 'alternating-features')
   const pullB      = findBlock(layout, 'pull-quote')
   const atmosB     = findBlock(layout, 'atmosphere-mosaic')
   const faqB       = findBlock(layout, 'faq-editorial')
   const ctaBandB   = findBlock(layout, 'cta-band')
+
+  interface FeatureItem {
+    id?: string
+    eyebrow?: string
+    title?: string
+    body?: string
+    price?: string
+    image?: { url?: string; alt?: string; sizes?: { card?: { url?: string } } } | null
+  }
+  const featureItems: FeatureItem[] = (featuresB?.items ?? []).filter(
+    (it: FeatureItem) => it.image && (it.image.sizes?.card?.url || it.image.url),
+  )
 
   // ── Derived values ─────────────────────────────────────────────────────
   const addressLine = `${c.street ?? ''}, ${c.zip ?? ''} ${c.city ?? ''}`.trim()
@@ -90,8 +105,13 @@ export default async function HomePage() {
     'Komm vorbei — am besten zu zweit, gern auch zu sechst. Die Gespräche am Tisch gehören zur Karte dazu.',
   ]
 
-  const atmosTiles: { url: string; alt: string }[] =
-    atmosB?.tiles?.map((t: { url: string; alt: string }) => ({ url: t.url, alt: t.alt })) ?? DEFAULT_ATMOSPHERE
+  const atmosMapped: { url: string; alt: string }[] | undefined = atmosB?.tiles
+    ?.map((t: { image?: { url?: string; alt?: string } }) => ({
+      url: t.image?.url ?? '',
+      alt: t.image?.alt ?? '',
+    }))
+    ?.filter((t: { url: string }) => !!t.url)
+  const atmosTiles = (atmosMapped && atmosMapped.length > 0) ? atmosMapped : DEFAULT_ATMOSPHERE
 
   const faqItems: { q: string; a: string }[] =
     faqB?.items?.map((i: { q: string; a: string }) => ({ q: i.q, a: i.a })) ?? DEFAULT_FAQ
@@ -116,8 +136,12 @@ export default async function HomePage() {
               ? { label: heroB.secondaryCta.label, href: heroB.secondaryCta.href }
               : { label: 'Speisekarte', href: '/menu' }
           }
-          imageUrl={heroB?.imageUrl || undefined}
-          imageAlt={heroB?.imageAlt || undefined}
+          imageUrl={
+            (heroB?.image as { sizes?: { hero?: { url?: string } } } | null)?.sizes?.hero?.url ||
+            (heroB?.image as { url?: string } | null)?.url ||
+            undefined
+          }
+          imageAlt={(heroB?.image as { alt?: string } | null)?.alt || undefined}
         />
 
         <a id="below" aria-hidden="true" />
@@ -135,7 +159,33 @@ export default async function HomePage() {
           </div>
         </ScrollReveal>
 
-        <SignatureFeatured />
+        {featureItems.length > 0 ? (
+          <section className={styles.featuresSection} aria-labelledby="features-title">
+            <header className={styles.featuresHead}>
+              {signatureB?.eyebrow ? <span className={styles.eyebrow}>{signatureB.eyebrow}</span> : null}
+              {signatureB?.title ? <h2 id="features-title" className={styles.featuresTitle}>{signatureB.title}</h2> : null}
+              {signatureB?.lead ? <p className={styles.featuresLead}>{signatureB.lead}</p> : null}
+            </header>
+            {featureItems.map((it, i) => (
+              <AlternatingFeature
+                key={it.id ?? i}
+                imageSide={i % 2 === 0 ? 'left' : 'right'}
+                imageUrl={it.image?.sizes?.card?.url ?? it.image?.url ?? ''}
+                imageAlt={it.image?.alt ?? it.title ?? ''}
+                eyebrow={it.eyebrow}
+                title={String(it.title ?? '')}
+                body={it.body}
+                meta={it.price}
+              />
+            ))}
+          </section>
+        ) : (
+          <SignatureFeatured
+            eyebrow={signatureB?.eyebrow}
+            title={signatureB?.title}
+            lead={signatureB?.lead}
+          />
+        )}
 
         <PullQuote
           quote={pullB?.quote ?? 'Saisonal, regional, handgemacht — und für dich gekocht.'}

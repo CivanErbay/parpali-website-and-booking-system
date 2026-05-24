@@ -8,11 +8,6 @@ export const Pages: CollectionConfig = {
     useAsTitle: 'title',
     defaultColumns: ['title', 'slug', 'updatedAt'],
   },
-  versions: {
-    drafts: {
-      autosave: { interval: 100 },
-    },
-  },
   access: {
     read: () => true,
   },

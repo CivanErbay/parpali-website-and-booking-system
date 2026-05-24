@@ -19,7 +19,6 @@ import { Navigation } from './globals/Navigation'
 import { Footer } from './globals/Footer'
 import { OpeningHours } from './globals/OpeningHours'
 import { BookingSettings } from './globals/BookingSettings'
-import { WidgetSettings } from './globals/WidgetSettings'
 import { ContactInfo } from './globals/ContactInfo'
 
 const filename = fileURLToPath(import.meta.url)
@@ -61,7 +60,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Media, Pages, MenuItems, Tables, Reservations, Inquiries, Testimonials, Events],
-  globals: [Navigation, Footer, OpeningHours, BookingSettings, WidgetSettings, ContactInfo],
+  globals: [Navigation, Footer, OpeningHours, BookingSettings, ContactInfo],
   localization: {
     locales: [
       { label: 'Deutsch', code: 'de' },

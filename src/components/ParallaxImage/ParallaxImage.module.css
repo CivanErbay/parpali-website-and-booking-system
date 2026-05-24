@@ -1,16 +1,21 @@
+/*
+ * No `position` here on purpose — consumers (`.bg` in EditorialHero,
+ * `.heroImage` in ueber-uns) set `position: absolute; inset: 0`. Setting
+ * `position: relative` here used to collide via cascade source-order
+ * (child CSS bundled after parent), winning the tie and collapsing the
+ * wrap to 0 height — so the <img> rendered at 0×0 and the hero looked empty.
+ */
 .wrap {
-  position: relative;
   overflow: hidden;
   width: 100%;
 }
 
 .img {
   position: absolute;
-  top: -10%;
+  top: 0;
   left: 0;
   width: 100%;
-  height: 120%;          /* overscan to allow parallax translation */
+  height: 100%;
   object-fit: cover;
   display: block;
-  will-change: transform;
 }

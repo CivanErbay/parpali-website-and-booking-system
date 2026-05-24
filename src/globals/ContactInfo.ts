@@ -24,6 +24,13 @@ export const ContactInfo: GlobalConfig = {
       ],
     },
     {
+      type: 'row',
+      fields: [
+        { name: 'ownerName', type: 'text', label: 'Inhaber / Vertretungsberechtigte/r', admin: { description: 'Vollständiger Name für das Impressum.' } },
+        { name: 'vatId', type: 'text', label: 'Umsatzsteuer-ID (USt-IdNr.)', admin: { description: 'z.B. DE123456789' } },
+      ],
+    },
+    {
       name: 'maps',
       type: 'group',
       label: 'Google Maps',

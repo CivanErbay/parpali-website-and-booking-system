@@ -10,6 +10,38 @@
   color: var(--fg-3);
 }
 
+/* ── Alternating features (CMS-driven dish/feature section) ── */
+.featuresSection {
+  width: 100%;
+  padding: var(--s-10) 0 var(--s-9);
+  background: var(--bg);
+}
+
+.featuresHead {
+  max-width: 44rem;
+  margin: 0 auto var(--s-7);
+  padding: 0 var(--container-pad);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.featuresTitle {
+  font: var(--t-h1);
+  color: var(--fg);
+  margin: 0;
+  letter-spacing: -0.01em;
+}
+
+.featuresLead {
+  font: var(--t-body-lg);
+  color: var(--fg-2);
+  max-width: 36rem;
+  margin: 0;
+}
+
 /* ── Magazine intro (asymmetric 7:5 grid) ──────────── */
 .intro {
   max-width: var(--container-max);

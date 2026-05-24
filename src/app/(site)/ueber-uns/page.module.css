@@ -26,21 +26,21 @@
   isolation: isolate;
 }
 
+/* Positive-z stacking inside .hero — see EditorialHero.module.css for why. */
 .heroImage {
   position: absolute;
   inset: 0;
-  z-index: -2;
 }
 
 .heroScrim {
   position: absolute;
   inset: 0;
   background: linear-gradient(180deg, rgba(0, 0, 0, 0.18) 0%, rgba(0, 0, 0, 0.62) 100%);
-  z-index: -1;
 }
 
 .heroContent {
   position: absolute;
+  z-index: 1;
   inset: auto 0 var(--s-8) 0;
   max-width: var(--container-max);
   margin: 0 auto;
@@ -113,8 +113,10 @@
 
 .teamGrid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: var(--s-7);
+  max-width: 46rem;
+  margin: 0 auto;
 }
 
 .member {

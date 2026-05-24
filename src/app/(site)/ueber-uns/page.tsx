@@ -1,3 +1,6 @@
+import { getPayload } from 'payload'
+import config from '@payload-config'
+
 import { SiteChrome } from '../_chrome/SiteChrome'
 import { CtaBand } from '../../../components/CtaBand/CtaBand'
 import { ScrollReveal } from '../../../components/ScrollReveal/ScrollReveal'
@@ -16,82 +19,116 @@ export const metadata = {
 const u = (id: string, w = 1600) =>
   `https://images.unsplash.com/${id}?w=${w}&q=80&auto=format&fit=crop`
 
-const TEAM = [
-  { name: 'Marco', role: 'Küchenchef', img: 'photo-1577219491135-ce391730fb2c' },
-  { name: 'Giulia', role: 'Service & Wein', img: 'photo-1438761681033-6461ffad8d80' },
-  { name: 'Luca', role: 'Pasta & Pizza', img: 'photo-1507003211169-0a1dd7228f2d' },
-]
-
-const PILLARS = [
+const DEFAULT_PILLARS = [
   {
     title: 'Saisonal',
     body: 'Unsere Karte folgt den Jahreszeiten. Im Frühjahr Spargel, im Herbst Steinpilze — was reif ist, kommt auf den Teller.',
-    img: 'photo-1542838132-92c53300491e',
+    img: u('photo-1542838132-92c53300491e'),
     eyebrow: 'Philosophie · 01',
   },
   {
     title: 'Regional',
     body: 'Wir arbeiten mit Lieferanten aus Brandenburg und Italien, die wir persönlich kennen. Kurze Wege, klarer Geschmack.',
-    img: 'photo-1518791841217-8f162f1e1131',
+    img: u('photo-1518791841217-8f162f1e1131'),
     eyebrow: 'Philosophie · 02',
   },
   {
     title: 'Handgemacht',
     body: 'Pasta, Soßen, Dressings, Dolci — alles entsteht in unserer Küche. Kein Fertigprodukt, kein Kompromiss.',
-    img: 'photo-1473093226795-af9932fe5856',
+    img: u('photo-1473093226795-af9932fe5856'),
     eyebrow: 'Philosophie · 03',
   },
 ]
 
-export default function UeberUnsPage() {
+const DEFAULT_TEAM = [
+  { name: 'Marco', role: 'Küchenchef', img: u('photo-1577219491135-ce391730fb2c', 800) },
+  { name: 'Giulia', role: 'Service & Wein', img: u('photo-1438761681033-6461ffad8d80', 800) },
+]
+
+const DEFAULT_STORY = [
+  'Parpali entstand aus einer einfachen Idee — italienische Küche, wie sie zu Hause gekocht wird: ohne Schnörkel, ohne Effekthascherei, mit großer Liebe zu Produkt und Handwerk. Hausgemachte Pasta, ein Holzofen, ein paar Flaschen Wein, die der Chef selbst ausgesucht hat.',
+  'Wir glauben an saisonale Karten, an ehrliche Preise und daran, dass ein gutes Glas Wein zu jedem Abend gehört. Bei uns kommen viele Speisen direkt aus dem Holzofen — der gibt jeder Pizza ihren typischen, leicht rauchigen Boden.',
+  'Wir kochen nicht, um etwas zu beweisen — sondern weil wir Lust haben, dass du zufrieden nach Hause gehst und morgen wiederkommst.',
+]
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function findBlock(layout: any[], blockType: string): any | undefined {
+  return layout.find((b) => b.blockType === blockType)
+}
+
+export default async function UeberUnsPage() {
+  const payload = await getPayload({ config })
+  const pageResult = await payload.find({ collection: 'pages', where: { slug: { equals: 'ueber-uns' } }, limit: 1, depth: 2 })
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const layout: any[] = (pageResult.docs[0] as any)?.layout ?? []
+
+  const heroB      = findBlock(layout, 'page-hero')
+  const storyB     = findBlock(layout, 'story-text')
+  const pullB      = findBlock(layout, 'pull-quote')
+  const featuresB  = findBlock(layout, 'alternating-features')
+  const teamB      = findBlock(layout, 'team-section')
+  const ctaB       = findBlock(layout, 'cta-band')
+
+  const storyParas: string[] = storyB?.paragraphs?.map((p: { text: string }) => p.text) ?? DEFAULT_STORY
+
+  const pillars: { eyebrow?: string; title: string; body?: string; img: string }[] =
+    featuresB?.items?.map((it: { eyebrow?: string; title: string; body?: string; image?: { url?: string } }) => ({
+      eyebrow: it.eyebrow,
+      title: it.title,
+      body: it.body,
+      img: it.image?.url ?? u('photo-1542838132-92c53300491e'),
+    })) ?? DEFAULT_PILLARS
+
+  const teamMembers: { name: string; role?: string; img: string }[] =
+    teamB?.members?.map((m: { name: string; role?: string; image?: { url?: string } }) => ({
+      name: m.name,
+      role: m.role,
+      img: m.image?.url ?? u('photo-1577219491135-ce391730fb2c', 800),
+    })) ?? DEFAULT_TEAM
+
+  const teamEyebrow: string = teamB?.eyebrow ?? 'Das Team'
+  const teamHeading: string = teamB?.heading ?? 'Hinter den Tellern'
+
   return (
     <SiteChrome activeHref="/ueber-uns">
       <main className={styles.page}>
         <header className={styles.hero}>
           <ParallaxImage
-            src={u('photo-1577219491135-ce391730fb2c', 2400)}
-            alt="Küche bei der Arbeit"
+            src={
+              (heroB?.image as { sizes?: { hero?: { url?: string } } } | null)?.sizes?.hero?.url ??
+              (heroB?.image as { url?: string } | null)?.url ??
+              u('photo-1577219491135-ce391730fb2c', 2400)
+            }
+            alt={(heroB?.image as { alt?: string } | null)?.alt ?? 'Küche bei der Arbeit'}
             className={styles.heroImage}
             eager
           />
           <div className={styles.heroScrim} aria-hidden="true" />
           <div className={styles.heroContent}>
-            <span className={styles.heroEyebrow}>Unsere Geschichte</span>
+            <span className={styles.heroEyebrow}>{heroB?.eyebrow ?? 'Unsere Geschichte'}</span>
             <h1 className={styles.heroTitle}>
-              <span className={styles.italicWord}>Italienisch</span>,<br />
-              mit Berliner Wärme.
+              <span className={styles.italicWord}>{heroB?.titleItalic ?? 'Italienisch'}</span>,<br />
+              {heroB?.title ?? 'mit Berliner Wärme.'}
             </h1>
           </div>
         </header>
 
         <ScrollReveal as="article" className={styles.story}>
-          <p className={styles.lead}>
-            Parpali entstand aus einer einfachen Idee — italienische Küche, wie sie zu Hause gekocht
-            wird: ohne Schnörkel, ohne Effekthascherei, mit großer Liebe zu Produkt und Handwerk.
-            Hausgemachte Pasta, ein Holzofen, ein paar Flaschen Wein, die der Chef selbst ausgesucht
-            hat.
-          </p>
-          <p>
-            Wir glauben an saisonale Karten, an ehrliche Preise und daran, dass ein gutes Glas Wein
-            zu jedem Abend gehört. Bei uns kommen viele Speisen direkt aus dem Holzofen — der gibt
-            jeder Pizza ihren typischen, leicht rauchigen Boden.
-          </p>
-          <p>
-            Wir kochen nicht, um etwas zu beweisen — sondern weil wir Lust haben, dass du zufrieden
-            nach Hause gehst und morgen wiederkommst.
-          </p>
+          {storyParas.map((text, i) => (
+            <p key={i} className={i === 0 ? styles.lead : undefined}>{text}</p>
+          ))}
         </ScrollReveal>
 
         <PullQuote
-          quote="Eine Mahlzeit ist nie nur eine Mahlzeit — es ist ein Stück Zeit, geteilt."
-          variant="elev"
+          quote={pullB?.quote ?? 'Eine Mahlzeit ist nie nur eine Mahlzeit — es ist ein Stück Zeit, geteilt.'}
+          variant={pullB?.variant ?? 'elev'}
         />
 
-        {PILLARS.map((p, i) => (
+        {pillars.map((p, i) => (
           <AlternatingFeature
             key={p.title}
             imageSide={i % 2 === 0 ? 'left' : 'right'}
-            imageUrl={u(p.img)}
+            imageUrl={p.img}
             imageAlt={p.title}
             eyebrow={p.eyebrow}
             title={p.title}
@@ -101,28 +138,28 @@ export default function UeberUnsPage() {
 
         <ScrollReveal as="section" className={styles.team} stagger>
           <header className={styles.teamHead}>
-            <span className={styles.eyebrow}>Das Team</span>
-            <h2 className={styles.h2}>Hinter den Tellern</h2>
+            <span className={styles.eyebrow}>{teamEyebrow}</span>
+            <h2 className={styles.h2}>{teamHeading}</h2>
           </header>
           <div className={styles.teamGrid}>
-            {TEAM.map((m) => (
+            {teamMembers.map((m) => (
               <article key={m.name} className={styles.member} data-reveal>
                 <div className={styles.portrait}>
-                  <img src={u(m.img, 800)} alt={m.name} loading="lazy" />
+                  <img src={m.img} alt={m.name} loading="lazy" />
                 </div>
                 <h3 className={styles.memberName}>{m.name}</h3>
-                <span className={styles.memberRole}>{m.role}</span>
+                {m.role ? <span className={styles.memberRole}>{m.role}</span> : null}
               </article>
             ))}
           </div>
         </ScrollReveal>
 
         <CtaBand
-          eyebrow="Komm vorbei"
-          title="Wir freuen uns auf dich."
-          body="Manches lässt sich am Tisch besser erzählen als auf einer Webseite."
-          primary={{ label: 'Tisch reservieren', href: '/reservierung' }}
-          secondary={{ label: 'Speisekarte ansehen', href: '/menu' }}
+          eyebrow={ctaB?.eyebrow ?? 'Komm vorbei'}
+          title={ctaB?.title ?? 'Wir freuen uns auf dich.'}
+          body={ctaB?.body ?? 'Manches lässt sich am Tisch besser erzählen als auf einer Webseite.'}
+          primary={ctaB?.primary ?? { label: 'Tisch reservieren', href: '/reservierung' }}
+          secondary={ctaB?.secondary ?? { label: 'Speisekarte ansehen', href: '/menu' }}
           variant="elev"
         />
       </main>

@@ -30,11 +30,14 @@ interface OpeningRow {
 
 export default async function ReservierungPage() {
   const payload = await getPayload({ config })
-  const [settings, contact, hours] = await Promise.all([
+  const [settings, contact, hours, pageResult] = await Promise.all([
     payload.findGlobal({ slug: 'booking-settings' }),
     payload.findGlobal({ slug: 'contact-info' }),
     payload.findGlobal({ slug: 'opening-hours' }),
+    payload.find({ collection: 'pages', where: { slug: { equals: 'reservierung' } }, limit: 1, depth: 1 }),
   ])
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const heroB = (pageResult.docs[0] as any)?.layout?.find((b: any) => b.blockType === 'page-hero')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const maxPartyOnline = Number((settings as any)?.maxPartyOnline ?? 8)
@@ -54,13 +57,12 @@ export default async function ReservierungPage() {
     <SiteChrome activeHref="/reservierung">
       <main className={styles.main}>
         <header className={styles.header}>
-          <span className={styles.eyebrow}>Reservierung</span>
+          <span className={styles.eyebrow}>{heroB?.eyebrow ?? 'Reservierung'}</span>
           <h1 className={styles.title}>
-            <span className={styles.italic}>Tisch</span> reservieren
+            <span className={styles.italic}>{heroB?.titleItalic ?? 'Tisch'}</span> {heroB?.title ?? 'reservieren'}
           </h1>
           <p className={styles.lead}>
-            Wähle Datum, Personenzahl und einen freien Zeitslot. Du bekommst direkt im Anschluss eine
-            Bestätigung per E-Mail.
+            {heroB?.lead ?? 'Wähle Datum, Personenzahl und einen freien Zeitslot. Du bekommst direkt im Anschluss eine Bestätigung per E-Mail.'}
           </p>
         </header>
 

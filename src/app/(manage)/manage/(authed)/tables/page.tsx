@@ -1,15 +1,22 @@
 import { getPayload } from 'payload'
 import config from '@payload-config'
 import styles from '../manage.module.css'
+import { TablesManager, type TableRow } from '@/components/Manage/ConfigForms/TablesManager'
 
 export const dynamic = 'force-dynamic'
 
-const ZONE_LABELS: Record<string, string> = {
-  main: 'Hauptraum',
-  terrace: 'Terrasse',
-  bar: 'Bar',
-  private: 'Nebenraum',
-}
+const relIds = (v: unknown): string[] =>
+  Array.isArray(v)
+    ? v
+        .map((x) =>
+          typeof x === 'string'
+            ? x
+            : x && typeof x === 'object' && 'id' in x
+              ? String((x as { id: unknown }).id)
+              : '',
+        )
+        .filter(Boolean)
+    : []
 
 export default async function TablesPage() {
   const payload = await getPayload({ config })
@@ -20,9 +27,20 @@ export default async function TablesPage() {
     sort: 'sortOrder',
     overrideAccess: true,
   })
-  const tables = resp.docs
-  const active = tables.filter((t) => t.active)
-  const totalSeats = active.reduce((s, t) => s + Number(t.capacity ?? 0), 0)
+
+  const initial: TableRow[] = resp.docs.map((t) => ({
+    id: String(t.id),
+    label: String(t.label ?? ''),
+    capacity: Number(t.capacity ?? 2),
+    zone: String(t.zone ?? 'main'),
+    sortOrder: Number(t.sortOrder ?? 0),
+    combinable: Boolean(t.combinable),
+    active: Boolean(t.active),
+    combinesWith: relIds(t.combinesWith),
+  }))
+
+  const activeCount = initial.filter((t) => t.active).length
+  const totalSeats = initial.filter((t) => t.active).reduce((s, t) => s + t.capacity, 0)
 
   return (
     <div className={styles.page}>
@@ -31,54 +49,11 @@ export default async function TablesPage() {
           <p className={styles.eyebrow}>Konfiguration</p>
           <h1 className={styles.title}>Tische</h1>
           <p className={styles.subtitle}>
-            {active.length} aktive Tische · {totalSeats} Plätze gesamt
+            {activeCount} aktive Tische · {totalSeats} Plätze gesamt
           </p>
         </div>
       </header>
-
-      <div className={styles.adminNote}>
-        <span>Tische anlegen, bearbeiten oder Nachbarschaften für Kombinationen pflegen:</span>
-        <a className={styles.ghostBtn} href="/admin/collections/tables" target="_blank" rel="noreferrer">
-          Im Admin bearbeiten
-        </a>
-      </div>
-
-      {tables.length === 0 ? (
-        <p className={styles.empty}>Noch keine Tische angelegt.</p>
-      ) : (
-        <div className={styles.scroll}>
-          <table className={styles.dataTable}>
-            <thead>
-              <tr>
-                <th>Tisch</th>
-                <th>Plätze</th>
-                <th>Bereich</th>
-                <th>Kombinierbar</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {tables.map((t) => (
-                <tr key={t.id}>
-                  <td>{t.label}</td>
-                  <td>{t.capacity}</td>
-                  <td>{ZONE_LABELS[String(t.zone)] ?? t.zone}</td>
-                  <td>
-                    {t.combinable
-                      ? `Ja (${Array.isArray(t.combinesWith) ? t.combinesWith.length : 0} Nachbarn)`
-                      : 'Nein'}
-                  </td>
-                  <td>
-                    <span className={t.active ? `${styles.tag} ${styles.tagOn}` : `${styles.tag} ${styles.tagOff}`}>
-                      {t.active ? 'Aktiv' : 'Inaktiv'}
-                    </span>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      )}
+      <TablesManager initial={initial} />
     </div>
   )
 }

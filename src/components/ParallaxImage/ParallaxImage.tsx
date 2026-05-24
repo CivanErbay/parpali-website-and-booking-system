@@ -1,24 +1,16 @@
-'use client'
-
-import { useRef } from 'react'
-import { gsap } from 'gsap'
-import { ScrollTrigger } from 'gsap/ScrollTrigger'
-import { useGSAP } from '@gsap/react'
-
 import styles from './ParallaxImage.module.css'
-import { ANIM } from '../../shared/animations'
 
-if (typeof window !== 'undefined') {
-  gsap.registerPlugin(ScrollTrigger, useGSAP)
-}
-
+/**
+ * Hero/cover image wrapper. Despite the historical name, the parallax scroll
+ * effect has been removed — heroes now use a plain `object-fit: cover` image.
+ * Kept as a wrapper component so the two consumers (EditorialHero, ueber-uns)
+ * don't need to manage the inner `<img>` markup directly.
+ */
 export interface ParallaxImageProps {
   src: string
   alt?: string
   aspectRatio?: string
   className?: string
-  /** Override the global parallax speed (0..1). */
-  speed?: number
   /** Render the <img> with high fetch priority (use on hero). */
   eager?: boolean
 }
@@ -28,50 +20,14 @@ export function ParallaxImage({
   alt = '',
   aspectRatio,
   className,
-  speed = ANIM.parallax.speed,
   eager = false,
 }: ParallaxImageProps) {
-  const wrapRef = useRef<HTMLDivElement | null>(null)
-  const imgRef = useRef<HTMLImageElement | null>(null)
-
-  useGSAP(
-    () => {
-      if (!wrapRef.current || !imgRef.current) return
-      const mm = gsap.matchMedia()
-      mm.add('(prefers-reduced-motion: no-preference)', () => {
-        const distance = `-${Math.round(speed * 100)}%`
-        const tween = gsap.fromTo(
-          imgRef.current,
-          { yPercent: 0 },
-          {
-            yPercent: parseFloat(distance),
-            ease: 'none',
-            scrollTrigger: {
-              trigger: wrapRef.current,
-              start: 'top bottom',
-              end: 'bottom top',
-              scrub: true,
-            },
-          },
-        )
-        return () => {
-          tween.scrollTrigger?.kill()
-          tween.kill()
-        }
-      })
-      return () => mm.revert()
-    },
-    { scope: wrapRef, dependencies: [speed] },
-  )
-
   return (
     <div
-      ref={wrapRef}
       className={`${styles.wrap} ${className ?? ''}`}
       style={aspectRatio ? { aspectRatio } : undefined}
     >
       <img
-        ref={imgRef}
         src={src}
         alt={alt}
         className={styles.img}

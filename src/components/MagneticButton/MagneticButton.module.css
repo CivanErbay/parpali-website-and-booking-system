@@ -31,12 +31,13 @@
 .primary:hover { background: var(--accent-hover); border-color: var(--accent-hover); }
 
 .secondary {
-  background: transparent;
+  background: var(--bg-elev);
   color: var(--fg);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--fg);
 }
 .secondary:hover {
-  background: var(--bg-elev);
+  background: var(--fg);
+  color: var(--bg);
   border-color: var(--fg);
 }
 

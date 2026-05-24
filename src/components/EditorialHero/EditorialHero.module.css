@@ -11,12 +11,22 @@
   color: #fff;
 }
 
+/*
+ * Stacking inside .hero (isolation: isolate creates the stacking context):
+ *   1. .hero background (dark green)
+ *   2. .bg (image) — positioned, z-auto, DOM-first
+ *   3. .scrim (gradient) — positioned, z-auto, DOM-next
+ *   4. .inner (content) — z-index: 1, paints on top
+ *
+ * Earlier we used negative z-index (-2 / -1) but Chrome's compositor can
+ * skip the layer when paired with `will-change: transform` on a large
+ * <img> child — the image silently fails to paint. Positive-z works.
+ */
 .bg {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  z-index: -2;
 }
 
 .scrim {
@@ -26,10 +36,11 @@
     rgba(0,0,0,0.32) 0%,
     rgba(0,0,0,0.38) 45%,
     rgba(0,0,0,0.62) 100%);
-  z-index: -1;
 }
 
 .inner {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: var(--container-max);
   padding: var(--s-8) var(--container-pad);
@@ -97,7 +108,7 @@
   justify-content: center;
   text-decoration: none;
   border-radius: var(--r-5);
-  z-index: 1;
+  z-index: 2;
 }
 
 .scrollCueLine {
@@ -119,10 +130,12 @@
   .inner {
     padding: var(--s-7) var(--s-4);
     gap: var(--s-4);
+    align-items: stretch;
+    text-align: center;
   }
-  .tagline { max-width: 100%; }
+  .brand { display: block; text-align: center; }
+  .tagline { max-width: 100%; text-align: center; }
   .ctas {
-    width: 100%;
     flex-direction: column;
     align-items: stretch;
   }

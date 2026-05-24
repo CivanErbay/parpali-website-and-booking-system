@@ -17,6 +17,11 @@ import { PullQuoteBlock } from './PullQuoteBlock.block'
 import { AtmosphereMosaicBlock } from './AtmosphereMosaicBlock.block'
 import { FaqEditorialBlock } from './FaqEditorialBlock.block'
 import { CtaBandBlock } from './CtaBandBlock.block'
+import { PageHeroBlock } from './PageHeroBlock.block'
+import { SignatureSectionBlock } from './SignatureSectionBlock.block'
+import { StoryTextBlock } from './StoryTextBlock.block'
+import { AlternatingFeaturesBlock } from './AlternatingFeaturesBlock.block'
+import { TeamSectionBlock } from './TeamSectionBlock.block'
 
 /** Page-layout blocks — used by the Pages collection's `layout` field. */
 export const ALL_BLOCKS = [
@@ -33,4 +38,10 @@ export const ALL_BLOCKS = [
   AtmosphereMosaicBlock,
   FaqEditorialBlock,
   CtaBandBlock,
+  PageHeroBlock,
+  // Shared content blocks
+  SignatureSectionBlock,
+  StoryTextBlock,
+  AlternatingFeaturesBlock,
+  TeamSectionBlock,
 ]

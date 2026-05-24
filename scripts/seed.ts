@@ -86,15 +86,6 @@ const BOOKING_SETTINGS_DATA = {
   },
 }
 
-const WIDGET_SETTINGS_DATA = {
-  restaurantName: 'Parpali',
-  headline: 'Tisch reservieren',
-  mode: 'light' as const,
-  fontFamily: 'inherit' as const,
-  accentColor: '',
-  bgColor: '',
-}
-
 /**
  * Sample floor plan: 6×2-top, 4×4-top, 2×6-top (ADR-0012). `combine` lists
  * physically adjacent tables by label; resolved to ids in a second pass since
@@ -130,6 +121,8 @@ const CONTACT_INFO_DATA = {
   phone: '+49 30 1234567',
   email: 'reservierung@parpali.de',
   whatsapp: '',
+  ownerName: '',
+  vatId: '',
   maps: { directionsUrl: '', embedUrl: '' },
   social: [
     { platform: 'instagram', url: 'https://instagram.com/parpali' },
@@ -334,6 +327,71 @@ const SEED_TESTIMONIAL = {
   featured: true,
 }
 
+const PAGE_MENU_DATA = {
+  title: 'Speisekarte',
+  slug: 'menu',
+  layout: [{ blockType: 'page-hero', eyebrow: 'La Carta', titleItalic: 'Speisekarte', title: '', lead: 'Saisonal, regional, handgemacht — italienische Küche mit internationalen Akzenten.' }],
+}
+
+const PAGE_UEBER_UNS_DATA = {
+  title: 'Über uns',
+  slug: 'ueber-uns',
+  layout: [
+    { blockType: 'page-hero', eyebrow: 'Unsere Geschichte', titleItalic: 'Italienisch', title: 'mit Berliner Wärme.', lead: '' },
+    {
+      blockType: 'story-text',
+      paragraphs: [
+        { text: 'Parpali entstand aus einer einfachen Idee — italienische Küche, wie sie zu Hause gekocht wird: ohne Schnörkel, ohne Effekthascherei, mit großer Liebe zu Produkt und Handwerk. Hausgemachte Pasta, ein Holzofen, ein paar Flaschen Wein, die der Chef selbst ausgesucht hat.' },
+        { text: 'Wir glauben an saisonale Karten, an ehrliche Preise und daran, dass ein gutes Glas Wein zu jedem Abend gehört. Bei uns kommen viele Speisen direkt aus dem Holzofen — der gibt jeder Pizza ihren typischen, leicht rauchigen Boden.' },
+        { text: 'Wir kochen nicht, um etwas zu beweisen — sondern weil wir Lust haben, dass du zufrieden nach Hause gehst und morgen wiederkommst.' },
+      ],
+    },
+    { blockType: 'pull-quote', quote: 'Eine Mahlzeit ist nie nur eine Mahlzeit — es ist ein Stück Zeit, geteilt.', variant: 'elev' },
+    {
+      blockType: 'team-section',
+      eyebrow: 'Das Team',
+      heading: 'Hinter den Tellern',
+      members: [
+        { name: 'Marco', role: 'Küchenchef' },
+        { name: 'Giulia', role: 'Service & Wein' },
+      ],
+    },
+    {
+      blockType: 'cta-band',
+      eyebrow: 'Komm vorbei',
+      title: 'Wir freuen uns auf dich.',
+      body: 'Manches lässt sich am Tisch besser erzählen als auf einer Webseite.',
+      primary: { label: 'Tisch reservieren', href: '/reservierung' },
+      secondary: { label: 'Speisekarte ansehen', href: '/menu' },
+      variant: 'elev',
+    },
+  ],
+}
+
+const PAGE_KONTAKT_DATA = {
+  title: 'Kontakt',
+  slug: 'kontakt',
+  layout: [{ blockType: 'page-hero', eyebrow: 'Kontakt', titleItalic: 'Sag', title: 'hallo.', lead: '' }],
+}
+
+const PAGE_RESERVIERUNG_DATA = {
+  title: 'Reservierung',
+  slug: 'reservierung',
+  layout: [{ blockType: 'page-hero', eyebrow: 'Reservierung', titleItalic: 'Tisch', title: 'reservieren', lead: 'Wähle Datum, Personenzahl und einen freien Zeitslot. Du bekommst direkt im Anschluss eine Bestätigung per E-Mail.' }],
+}
+
+const PAGE_IMPRESSUM_DATA = {
+  title: 'Impressum',
+  slug: 'impressum',
+  layout: [{ blockType: 'page-hero', eyebrow: 'Rechtliches', titleItalic: '', title: 'Impressum', lead: '' }],
+}
+
+const PAGE_DATENSCHUTZ_DATA = {
+  title: 'Datenschutz',
+  slug: 'datenschutz',
+  layout: [{ blockType: 'page-hero', eyebrow: 'Rechtliches', titleItalic: '', title: 'Datenschutzerklärung', lead: '' }],
+}
+
 const HOME_PAGE_DATA = {
   title: 'Home',
   slug: 'home',
@@ -368,18 +426,15 @@ const HOME_PAGE_DATA = {
       ],
     },
     {
+      blockType: 'home-signature',
+      eyebrow: 'Signature',
+      title: 'Was wir besonders gern kochen',
+      lead: 'Drei Gerichte, an denen wir hängen — saisonal, ehrlich, aus dem Holzofen, von Hand gerollt.',
+    },
+    {
       blockType: 'pull-quote',
       quote: 'Saisonal, regional, handgemacht — und für dich gekocht.',
       variant: 'elev',
-    },
-    {
-      blockType: 'atmosphere-mosaic',
-      tiles: [
-        { url: 'https://images.unsplash.com/photo-1525610553991-2bede1a236e2?auto=format&fit=crop&w=2000&q=80', alt: 'Tavolata mit Antipasti' },
-        { url: 'https://images.unsplash.com/photo-1601925268712-2bf9c4be1f9c?auto=format&fit=crop&w=1400&q=80', alt: 'Glas Rotwein' },
-        { url: 'https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&fit=crop&w=1400&q=80', alt: 'Holzofen Pizza' },
-        { url: 'https://images.unsplash.com/photo-1559925393-8be0ec4767c8?auto=format&fit=crop&w=2000&q=80', alt: 'Olivenzweig auf Tisch' },
-      ],
     },
     {
       blockType: 'faq-editorial',
@@ -543,7 +598,6 @@ async function main() {
   await upsertGlobal(payload, 'footer', FOOTER_DATA)
   await upsertGlobal(payload, 'opening-hours', OPENING_HOURS_DATA)
   await upsertGlobal(payload, 'booking-settings', BOOKING_SETTINGS_DATA)
-  await upsertGlobal(payload, 'widget-settings', WIDGET_SETTINGS_DATA)
   await upsertGlobal(payload, 'contact-info', CONTACT_INFO_DATA)
 
   console.log('· Tische')
@@ -564,6 +618,12 @@ async function main() {
 
   console.log('· Pages')
   await upsertPage(payload, HOME_PAGE_DATA)
+  await upsertPage(payload, PAGE_MENU_DATA)
+  await upsertPage(payload, PAGE_UEBER_UNS_DATA)
+  await upsertPage(payload, PAGE_KONTAKT_DATA)
+  await upsertPage(payload, PAGE_RESERVIERUNG_DATA)
+  await upsertPage(payload, PAGE_IMPRESSUM_DATA)
+  await upsertPage(payload, PAGE_DATENSCHUTZ_DATA)
 
   console.log('\nDone.')
   process.exit(0)

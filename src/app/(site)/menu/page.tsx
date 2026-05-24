@@ -9,6 +9,11 @@ import { FloatingReserveCta } from '../../../components/FloatingReserveCta/Float
 import { SiteChrome } from '../_chrome/SiteChrome'
 import styles from './page.module.css'
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+function findBlock(layout: any[], blockType: string): any | undefined {
+  return layout.find((b) => b.blockType === blockType)
+}
+
 export const metadata = {
   title: 'Speisekarte · Parpali',
   description: 'Antipasti, Pasta, Pizze, Dolci und unsere Weinkarte. Saisonal kuratiert.',
@@ -29,12 +34,12 @@ interface MenuItemDoc {
 
 export default async function MenuPage() {
   const payload = await getPayload({ config })
-  const { docs } = await payload.find({
-    collection: 'menu-items',
-    limit: 500,
-    depth: 0,
-    sort: 'order',
-  })
+  const [{ docs }, pageResult] = await Promise.all([
+    payload.find({ collection: 'menu-items', limit: 500, depth: 0, sort: 'order' }),
+    payload.find({ collection: 'pages', where: { slug: { equals: 'menu' } }, limit: 1, depth: 1 }),
+  ])
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const heroB = findBlock((pageResult.docs[0] as any)?.layout ?? [], 'page-hero')
 
   const items = docs as MenuItemDoc[]
 
@@ -60,13 +65,15 @@ export default async function MenuPage() {
     <SiteChrome activeHref="/menu">
       <main className={styles.main}>
         <header className={styles.header}>
-          <span className={styles.eyebrow}>La Carta</span>
+          <span className={styles.eyebrow}>{heroB?.eyebrow ?? 'La Carta'}</span>
           <h1 className={styles.title}>
-            <span className={styles.titleItalic}>Speisekarte</span>
+            <span className={styles.titleItalic}>{heroB?.titleItalic ?? 'Speisekarte'}</span>
           </h1>
-          <p className={styles.lead}>
-            Saisonal, regional, handgemacht — italienische Küche mit internationalen Akzenten.
-          </p>
+          {(heroB?.lead ?? 'Saisonal, regional, handgemacht — italienische Küche mit internationalen Akzenten.') ? (
+            <p className={styles.lead}>
+              {heroB?.lead ?? 'Saisonal, regional, handgemacht — italienische Küche mit internationalen Akzenten.'}
+            </p>
+          ) : null}
         </header>
 
         {sections.length === 0 ? (
@@ -75,16 +82,6 @@ export default async function MenuPage() {
           </p>
         ) : (
           <>
-            <nav className={styles.tabs} aria-label="Kategorien">
-              <div className={styles.tabsInner}>
-                {sections.map((s) => (
-                  <a key={s.category} href={`#${s.category}`} className={styles.tab}>
-                    {s.label}
-                  </a>
-                ))}
-              </div>
-            </nav>
-
             <ScrollReveal>
               <MenuList sections={sections} />
             </ScrollReveal>

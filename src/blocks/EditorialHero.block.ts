@@ -7,8 +7,7 @@ export const EditorialHeroBlock: Block = {
     { name: 'eyebrow', type: 'text', defaultValue: 'Toskana · Berlin', admin: { description: 'Kleiner Text über dem Titel, z.B. "Toskana · Berlin"' } },
     { name: 'brand', type: 'text', required: true, defaultValue: 'Parpali', admin: { description: 'Großer animierter Markenname' } },
     { name: 'tagline', type: 'textarea', required: true, admin: { description: 'Beschreibungstext unter dem Markennamen' } },
-    { name: 'imageUrl', type: 'text', admin: { description: 'Hintergrund-Bild URL (leer lassen für Standard-Bild)' } },
-    { name: 'imageAlt', type: 'text', defaultValue: 'Toskanischer Olivenhain mit Zypressen' },
+    { name: 'image', type: 'upload', relationTo: 'media', label: 'Hintergrundbild', admin: { description: 'Bild aus der Mediathek wählen oder hochladen (leer lassen für Standard-Bild)' } },
     {
       name: 'primaryCta',
       type: 'group',

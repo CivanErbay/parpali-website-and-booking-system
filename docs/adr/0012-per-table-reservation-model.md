@@ -25,7 +25,7 @@ Concurrency on the last free table is handled at the route layer: after `create`
 + `availability.ts` stays pure and unit-testable; the new logic is deterministic, so it is fully covered by fixtures (see ADR-0014).
 + Repurposing rather than removing `maxSeatsPerSlot` keeps the migration non-destructive and gives the owner a kitchen-pacing lever for free.
 - The slot scan is more expensive: per candidate slot it enumerates table options instead of summing a number. Bounded by table count × `maxCombineTables`; fine for a single restaurant, not free.
-- `OpenSlot.seatsLeft` becomes `assignableTables` + `bestOption` — a breaking API-shape change that `BookingForm` and the embed widget must absorb in lockstep.
+- `OpenSlot.seatsLeft` becomes `assignableTables` + `bestOption` — a breaking API-shape change that the `BookingForm` on `/reservierung` must absorb.
 - Existing reservations migrate with empty `assignedTables`; until the owner assigns them they block no specific table (they still count toward the soft ceiling).
 ? Concurrency: the re-query guard is correct but not airtight under heavy simultaneous load. A `bookingLocks` collection with a unique `date|tableId` index is the stronger fix if Parpali's volume ever warrants it.
 ? Reminder emails need a scheduled trigger (`/api/cron/reminders` hit by a VPS cron) — a new moving part the deployment must wire up.

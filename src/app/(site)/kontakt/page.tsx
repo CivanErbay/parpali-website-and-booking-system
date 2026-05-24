@@ -34,10 +34,13 @@ interface OpeningRow {
 
 export default async function KontaktPage() {
   const payload = await getPayload({ config })
-  const [contact, hours] = await Promise.all([
+  const [contact, hours, pageResult] = await Promise.all([
     payload.findGlobal({ slug: 'contact-info' }),
     payload.findGlobal({ slug: 'opening-hours' }),
+    payload.find({ collection: 'pages', where: { slug: { equals: 'kontakt' } }, limit: 1, depth: 1 }),
   ])
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const heroB = (pageResult.docs[0] as any)?.layout?.find((b: any) => b.blockType === 'page-hero')
 
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const c = contact as any
@@ -62,9 +65,9 @@ export default async function KontaktPage() {
     <SiteChrome activeHref="/kontakt">
       <main className={styles.page}>
         <header className={styles.hero}>
-          <span className={styles.eyebrow}>Kontakt</span>
+          <span className={styles.eyebrow}>{heroB?.eyebrow ?? 'Kontakt'}</span>
           <h1 className={styles.heroTitle}>
-            <span className={styles.italic}>Sag</span> hallo.
+            <span className={styles.italic}>{heroB?.titleItalic ?? 'Sag'}</span> {heroB?.title ?? 'hallo.'}
           </h1>
         </header>
 

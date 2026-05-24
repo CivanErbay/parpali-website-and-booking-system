@@ -18,6 +18,8 @@ export default async function ImpressumPage() {
     city?: string
     phone?: string
     email?: string
+    ownerName?: string
+    vatId?: string
   }
 
   return (
@@ -43,19 +45,19 @@ export default async function ImpressumPage() {
 
             <h2>Vertretungsberechtigte/r</h2>
             <p>
-              [Name des Inhabers / der Geschäftsführerin]<br />
+              {c.ownerName ?? '[Name einsetzen in Admin → Einstellungen → Kontakt & Adresse]'}<br />
               Anschrift wie oben
             </p>
 
             <h2>Umsatzsteuer-ID</h2>
             <p>
               Umsatzsteuer-Identifikationsnummer gemäß § 27 a Umsatzsteuergesetz:<br />
-              [USt-IdNr. einsetzen]
+              {c.vatId ?? '[USt-IdNr. einsetzen in Admin → Einstellungen → Kontakt & Adresse]'}
             </p>
 
             <h2>Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV</h2>
             <p>
-              [Name]<br />
+              {c.ownerName ?? '[Name einsetzen in Admin → Einstellungen → Kontakt & Adresse]'}<br />
               Anschrift wie oben
             </p>
 

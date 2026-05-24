@@ -8,11 +8,10 @@ export const AtmosphereMosaicBlock: Block = {
       name: 'tiles',
       type: 'array',
       label: 'Bilder (max. 4)',
-      minRows: 1,
       maxRows: 4,
+      admin: { description: 'Leer lassen für Standard-Bilder; sonst 1–4 Bilder aus der Mediathek.' },
       fields: [
-        { name: 'url', type: 'text', required: true, admin: { description: 'Bild-URL (Unsplash oder S3-Upload-URL)' } },
-        { name: 'alt', type: 'text', required: true, admin: { description: 'Bildbeschreibung für Screenreader' } },
+        { name: 'image', type: 'upload', relationTo: 'media', required: true, label: 'Bild' },
       ],
     },
   ],
