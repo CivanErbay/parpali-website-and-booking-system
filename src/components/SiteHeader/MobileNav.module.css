@@ -1,0 +1,102 @@
+.toggle {
+  display: none;
+  width: 44px;
+  height: 44px;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: var(--r-3);
+  padding: 0;
+  cursor: pointer;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.toggle:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.bar {
+  width: 20px;
+  height: 2px;
+  background: var(--fg);
+  border-radius: 2px;
+  transition: transform 220ms ease-out, opacity 180ms ease-out;
+  transform-origin: center;
+}
+
+.bar1Open { transform: translateY(7px) rotate(45deg); }
+.bar2Open { opacity: 0; }
+.bar3Open { transform: translateY(-7px) rotate(-45deg); }
+
+.backdrop {
+  position: fixed;
+  inset: 0;
+  background: color-mix(in srgb, var(--fg) 30%, transparent);
+  z-index: 60;
+  animation: fadeIn 180ms ease-out;
+}
+
+.drawer {
+  position: fixed;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  width: min(82vw, 22rem);
+  background: var(--bg);
+  border-left: 1px solid var(--border);
+  z-index: 70;
+  transform: translateX(100%);
+  transition: transform 280ms ease-out;
+  padding: calc(var(--nav-h, 4rem) + var(--s-5)) var(--s-5) var(--s-6);
+  overflow-y: auto;
+  box-shadow: -8px 0 24px -16px rgb(0 0 0 / 0.2);
+}
+
+.drawerOpen { transform: translateX(0); }
+
+.list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.link {
+  display: block;
+  font: 500 1.125rem/1.2 var(--font-sans);
+  color: var(--fg);
+  padding: var(--s-3) var(--s-2);
+  text-decoration: none;
+  border-radius: var(--r-2);
+  transition: background 180ms ease-out;
+}
+
+.link:hover { background: var(--bg-elev); }
+.link:focus-visible {
+  outline: 2px solid var(--focus-ring);
+  outline-offset: 2px;
+}
+
+.isActive {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@media (max-width: 900px) {
+  .toggle { display: inline-flex; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bar, .drawer, .backdrop { transition: none; animation: none; }
+}

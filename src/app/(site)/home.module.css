@@ -199,11 +199,12 @@
   .hoursSection { padding: var(--s-8) var(--container-pad-narrow); }
   .hoursRow { grid-template-columns: 3rem 1fr auto; gap: var(--s-3); }
   .hoursValue { font-size: 0.875rem; }
-  .mapSection { padding: var(--s-8) var(--container-pad-narrow); }
+  .mapSection { padding: var(--s-6) var(--container-pad-narrow); }
   .mapCard {
     position: static;
-    margin-top: -3rem;
-    margin-left: var(--s-3);
-    max-width: calc(100% - var(--s-6));
+    margin-top: var(--s-3);
+    margin-left: 0;
+    max-width: 100%;
+    padding: var(--s-4);
   }
 }

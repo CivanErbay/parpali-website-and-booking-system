@@ -2,7 +2,7 @@ import React from 'react'
 import Link from 'next/link'
 import styles from './SiteHeader.module.css'
 import { buildColorStyle, SectionColors } from '../../shared/colors'
-import { ModeSwitcher } from '../ModeSwitcher/ModeSwitcher'
+import { MobileNav } from './MobileNav'
 
 export interface SiteHeaderLink {
   label: string
@@ -16,7 +16,6 @@ export interface SiteHeaderProps extends SectionColors {
   activeHref?: string
   ctaText: string
   ctaHref: string
-  showModeSwitcher?: boolean
 }
 
 export const SiteHeader: React.FC<SiteHeaderProps> = ({
@@ -30,7 +29,6 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
   textColor,
   accentColor,
   mutedColor,
-  showModeSwitcher = true,
 }) => (
   <header
     className={styles.header}
@@ -53,10 +51,10 @@ export const SiteHeader: React.FC<SiteHeaderProps> = ({
         ))}
       </nav>
       <div className={styles.right}>
-        {showModeSwitcher ? <ModeSwitcher /> : null}
         <Link href={ctaHref} className={styles.cta}>
           {ctaText}
         </Link>
+        <MobileNav links={links} activeHref={activeHref} />
       </div>
     </div>
   </header>
