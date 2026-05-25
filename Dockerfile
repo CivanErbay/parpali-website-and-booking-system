@@ -30,7 +30,7 @@ ENV S3_ENDPOINT=https://build-placeholder.example.com
 ENV S3_REGION=build-placeholder
 ENV NODE_ENV=production
 
-RUN pnpm generate:importmap && pnpm build
+RUN pnpm generate:types && pnpm generate:importmap && pnpm build
 
 # Stage 3: Lean runtime image using Next.js standalone output
 FROM node:22-alpine AS runner
