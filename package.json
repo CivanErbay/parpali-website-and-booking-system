@@ -39,8 +39,7 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "tsx": "^4.21.0",
-    "typescript": "^5.4.0",
-    "vitest": "^3.0.0"
+    "typescript": "^5.4.0"
   },
   "pnpm": {
     "onlyBuiltDependencies": [
