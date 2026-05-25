@@ -10,7 +10,10 @@ services:
       - traefik.http.routers.parpali-website.tls=true
       - traefik.http.routers.parpali-website.entrypoints=web,websecure
       - traefik.http.routers.parpali-website.tls.certresolver=mytlschallenge
+      - traefik.http.routers.parpali-website.middlewares=parpali-auth
       - traefik.http.services.parpali-website.loadbalancer.server.port=3000
+      # Basic Auth — Kunden-Preview, kein öffentlicher Zugang
+      - traefik.http.middlewares.parpali-auth.basicauth.users=parpali:$$2y$$05$$OLaLyG.isfXRE3wDORuIc.Qrg7CFa4wquTZeFwYOAVqCfPSKHpK3C
     env_file: .env
     volumes:
       - media_uploads:/app/media
