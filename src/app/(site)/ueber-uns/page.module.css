@@ -102,6 +102,17 @@
   padding: var(--s-10) var(--container-pad);
 }
 
+.signatureHead {
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding: var(--s-12) var(--container-pad) var(--s-4);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  align-items: center;
+}
+
 .teamHead {
   text-align: center;
   display: flex;

@@ -79,10 +79,13 @@ export default async function HomePage() {
     eyebrow?: string
     title?: string
     body?: string
+    meta?: string
     price?: string
     image?: { url?: string; alt?: string; sizes?: { card?: { url?: string } } } | null
   }
-  const featureItems: FeatureItem[] = (featuresB?.items ?? []).filter(
+  // Items are now first-class on the signature block (no more dependency on a
+  // separate `alternating-features` block). Items without a usable image are skipped.
+  const signatureItems: FeatureItem[] = (signatureB?.items ?? featuresB?.items ?? []).filter(
     (it: FeatureItem) => it.image && (it.image.sizes?.card?.url || it.image.url),
   )
 
@@ -159,14 +162,14 @@ export default async function HomePage() {
           </div>
         </ScrollReveal>
 
-        {featureItems.length > 0 ? (
+        {signatureItems.length > 0 ? (
           <section className={styles.featuresSection} aria-labelledby="features-title">
             <header className={styles.featuresHead}>
               {signatureB?.eyebrow ? <span className={styles.eyebrow}>{signatureB.eyebrow}</span> : null}
               {signatureB?.title ? <h2 id="features-title" className={styles.featuresTitle}>{signatureB.title}</h2> : null}
               {signatureB?.lead ? <p className={styles.featuresLead}>{signatureB.lead}</p> : null}
             </header>
-            {featureItems.map((it, i) => (
+            {signatureItems.map((it, i) => (
               <AlternatingFeature
                 key={it.id ?? i}
                 imageSide={i % 2 === 0 ? 'left' : 'right'}
@@ -175,7 +178,7 @@ export default async function HomePage() {
                 eyebrow={it.eyebrow}
                 title={String(it.title ?? '')}
                 body={it.body}
-                meta={it.price}
+                meta={it.meta ?? it.price}
               />
             ))}
           </section>

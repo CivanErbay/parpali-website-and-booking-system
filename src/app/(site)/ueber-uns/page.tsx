@@ -65,19 +65,27 @@ export default async function UeberUnsPage() {
   const heroB      = findBlock(layout, 'page-hero')
   const storyB     = findBlock(layout, 'story-text')
   const pullB      = findBlock(layout, 'pull-quote')
+  const signatureB = findBlock(layout, 'home-signature')
   const featuresB  = findBlock(layout, 'alternating-features')
   const teamB      = findBlock(layout, 'team-section')
   const ctaB       = findBlock(layout, 'cta-band')
 
   const storyParas: string[] = storyB?.paragraphs?.map((p: { text: string }) => p.text) ?? DEFAULT_STORY
 
+  // Items: prefer `home-signature` block (new canonical), fall back to legacy
+  // `alternating-features`, and finally to defaults. Items without an image are skipped.
+  type ItemInput = { eyebrow?: string; title: string; body?: string; image?: { url?: string } }
+  const customItems = (signatureB?.items ?? featuresB?.items ?? []) as ItemInput[]
+  const filteredCustom = customItems.filter((it) => !!it.image?.url)
   const pillars: { eyebrow?: string; title: string; body?: string; img: string }[] =
-    featuresB?.items?.map((it: { eyebrow?: string; title: string; body?: string; image?: { url?: string } }) => ({
-      eyebrow: it.eyebrow,
-      title: it.title,
-      body: it.body,
-      img: it.image?.url ?? u('photo-1542838132-92c53300491e'),
-    })) ?? DEFAULT_PILLARS
+    filteredCustom.length > 0
+      ? filteredCustom.map((it) => ({
+          eyebrow: it.eyebrow,
+          title: it.title,
+          body: it.body,
+          img: it.image?.url as string,
+        }))
+      : DEFAULT_PILLARS
 
   const teamMembers: { name: string; role?: string; img: string }[] =
     teamB?.members?.map((m: { name: string; role?: string; image?: { url?: string } }) => ({
@@ -123,6 +131,14 @@ export default async function UeberUnsPage() {
           quote={pullB?.quote ?? 'Eine Mahlzeit ist nie nur eine Mahlzeit — es ist ein Stück Zeit, geteilt.'}
           variant={pullB?.variant ?? 'elev'}
         />
+
+        {(signatureB?.eyebrow || signatureB?.title || signatureB?.lead) ? (
+          <ScrollReveal as="header" className={styles.signatureHead}>
+            {signatureB?.eyebrow ? <span className={styles.eyebrow}>{signatureB.eyebrow}</span> : null}
+            {signatureB?.title ? <h2 className={styles.h2}>{signatureB.title}</h2> : null}
+            {signatureB?.lead ? <p>{signatureB.lead}</p> : null}
+          </ScrollReveal>
+        ) : null}
 
         {pillars.map((p, i) => (
           <AlternatingFeature
