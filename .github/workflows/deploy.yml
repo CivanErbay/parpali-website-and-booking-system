@@ -30,7 +30,7 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/cartel-design/parpali-website:latest
+          tags: ghcr.io/civanerbay/parpali-website:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
           build-args: |

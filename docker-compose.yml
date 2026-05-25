@@ -1,24 +1,24 @@
 services:
   web:
-    image: ghcr.io/cartel-design/parpali-website:latest
+    image: ghcr.io/civanerbay/parpali-website:latest
     restart: unless-stopped
     networks:
       - traefik
     labels:
       - traefik.enable=true
-      - traefik.http.routers.parpali-website.rule=Host(`parpali.de`)
+      - traefik.http.routers.parpali-website.rule=Host(`parpali-hennef.de`)
       - traefik.http.routers.parpali-website.tls=true
       - traefik.http.routers.parpali-website.entrypoints=web,websecure
       - traefik.http.routers.parpali-website.tls.certresolver=mytlschallenge
       - traefik.http.services.parpali-website.loadbalancer.server.port=3000
       # www → apex redirect
-      - traefik.http.routers.parpali-website-www.rule=Host(`www.parpali.de`)
+      - traefik.http.routers.parpali-website-www.rule=Host(`www.parpali-hennef.de`)
       - traefik.http.routers.parpali-website-www.tls=true
       - traefik.http.routers.parpali-website-www.entrypoints=web,websecure
       - traefik.http.routers.parpali-website-www.tls.certresolver=mytlschallenge
       - traefik.http.routers.parpali-website-www.middlewares=www-to-apex@docker
-      - traefik.http.middlewares.www-to-apex.redirectregex.regex=^https://www\.parpali\.de/(.*)
-      - traefik.http.middlewares.www-to-apex.redirectregex.replacement=https://parpali.de/$${1}
+      - traefik.http.middlewares.www-to-apex.redirectregex.regex=^https://www\.parpali-hennef\.de/(.*)
+      - traefik.http.middlewares.www-to-apex.redirectregex.replacement=https://parpali-hennef.de/$${1}
       - traefik.http.middlewares.www-to-apex.redirectregex.permanent=true
     env_file: .env
     volumes:
