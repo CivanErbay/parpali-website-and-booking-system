@@ -199,8 +199,8 @@ export default async function HomePage() {
 
         <ScrollReveal as="section" className={styles.hoursSection}>
           <div className={styles.hoursInner}>
-            <span className={styles.eyebrow}>Öffnungszeiten</span>
-            <h2 className={styles.hoursTitle}>Wann wir für dich kochen</h2>
+            <span className={styles.eyebrow}>{h?.sectionEyebrow ?? 'Öffnungszeiten'}</span>
+            <h2 className={styles.hoursTitle}>{h?.sectionHeading ?? 'Wann wir für dich kochen'}</h2>
             <ul className={styles.hoursList}>
               {WEEKDAY_ORDER.map((wd) => {
                 const day = byDay[wd]

@@ -60,7 +60,7 @@
   font: var(--t-display-italic);
   color: var(--fg);
   margin: 0;
-  max-width: 24rem;
+  max-width: 32rem;
   letter-spacing: -0.01em;
   position: relative;
 }

@@ -16,6 +16,8 @@ export const OpeningHours: GlobalConfig = {
   admin: { group: 'Einstellungen' },
   access: { read: () => true },
   fields: [
+    { name: 'sectionEyebrow', type: 'text', label: 'Eyebrow (kleine Überzeile)', admin: { description: 'z.B. „Öffnungszeiten" — wird oberhalb der Überschrift angezeigt.' } },
+    { name: 'sectionHeading', type: 'text', label: 'Überschrift', admin: { description: 'z.B. „Wann wir für dich kochen"' } },
     {
       name: 'regular',
       type: 'array',
