@@ -10,9 +10,9 @@ export const ContactInfo: GlobalConfig = {
     {
       type: 'row',
       fields: [
-        { name: 'street', type: 'text', required: true, defaultValue: 'Beispielstraße 1' },
-        { name: 'zip', type: 'text', required: true, defaultValue: '10115' },
-        { name: 'city', type: 'text', required: true, defaultValue: 'Berlin' },
+        { name: 'street', type: 'text', required: true, defaultValue: 'Marktpl. 5' },
+        { name: 'zip', type: 'text', required: true, defaultValue: '53773' },
+        { name: 'city', type: 'text', required: true, defaultValue: 'Hennef (Sieg)' },
       ],
     },
     {

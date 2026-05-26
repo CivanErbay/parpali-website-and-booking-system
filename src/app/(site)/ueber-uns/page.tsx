@@ -116,7 +116,7 @@ export default async function UeberUnsPage() {
             <span className={styles.heroEyebrow}>{heroB?.eyebrow ?? 'Unsere Geschichte'}</span>
             <h1 className={styles.heroTitle}>
               <span className={styles.italicWord}>{heroB?.titleItalic ?? 'Italienisch'}</span>,<br />
-              {heroB?.title ?? 'mit Berliner Wärme.'}
+              {heroB?.title ?? 'mit Liebe zum Handwerk.'}
             </h1>
           </div>
         </header>

@@ -130,7 +130,7 @@ export default async function HomePage() {
       <main className={styles.main}>
 
         <EditorialHero
-          eyebrow={heroB?.eyebrow ?? 'Toskana · Berlin'}
+          eyebrow={heroB?.eyebrow ?? 'Marktplatz · Hennef'}
           brand={heroB?.brand ?? c.restaurantName ?? 'Parpali'}
           tagline={heroB?.tagline ?? 'Hausgemachte Pasta, Holzofen-Pizza, sorgfältig kuratierte Weinkarte — italienische Küche mit einem Hauch Mittelmeer.'}
           primaryCta={heroB?.primaryCta ?? { label: 'Tisch reservieren', href: '/reservierung' }}

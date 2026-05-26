@@ -30,7 +30,7 @@ export default async function DatenschutzPage() {
             <h2>1. Verantwortlicher</h2>
             <address>
               <strong>{c.restaurantName ?? 'Parpali'}</strong><br />
-              {c.street ?? 'Beispielstraße 1'}, {c.zip ?? '10115'} {c.city ?? 'Berlin'}<br />
+              {c.street ?? 'Marktpl. 5'}, {c.zip ?? '53773'} {c.city ?? 'Hennef (Sieg)'}<br />
               E-Mail: <a href={`mailto:${c.email ?? ''}`}>{c.email ?? '—'}</a>
             </address>
 

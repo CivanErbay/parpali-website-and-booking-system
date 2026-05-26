@@ -32,8 +32,8 @@ export default async function ImpressumPage() {
             <h2>Angaben gemäß § 5 TMG</h2>
             <address>
               <strong>{c.restaurantName ?? 'Parpali'}</strong><br />
-              {c.street ?? 'Beispielstraße 1'}<br />
-              {c.zip ?? '10115'} {c.city ?? 'Berlin'}<br />
+              {c.street ?? 'Marktpl. 5'}<br />
+              {c.zip ?? '53773'} {c.city ?? 'Hennef (Sieg)'}<br />
               Deutschland
             </address>
 

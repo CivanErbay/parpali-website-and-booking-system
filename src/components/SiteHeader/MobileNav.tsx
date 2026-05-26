@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import { createPortal } from 'react-dom'
 import Link from 'next/link'
 import styles from './MobileNav.module.css'
 
@@ -11,6 +12,9 @@ interface MobileNavProps {
 
 export function MobileNav({ links, activeHref }: MobileNavProps) {
   const [open, setOpen] = useState(false)
+  const [mounted, setMounted] = useState(false)
+
+  useEffect(() => { setMounted(true) }, [])
 
   useEffect(() => {
     if (!open) return
@@ -23,20 +27,8 @@ export function MobileNav({ links, activeHref }: MobileNavProps) {
     }
   }, [open])
 
-  return (
+  const drawer = (
     <>
-      <button
-        type="button"
-        className={styles.toggle}
-        aria-label={open ? 'Menü schließen' : 'Menü öffnen'}
-        aria-expanded={open}
-        onClick={() => setOpen((v) => !v)}
-      >
-        <span className={`${styles.bar} ${open ? styles.bar1Open : ''}`} />
-        <span className={`${styles.bar} ${open ? styles.bar2Open : ''}`} />
-        <span className={`${styles.bar} ${open ? styles.bar3Open : ''}`} />
-      </button>
-
       {open ? (
         <div
           className={styles.backdrop}
@@ -65,6 +57,24 @@ export function MobileNav({ links, activeHref }: MobileNavProps) {
           ))}
         </ul>
       </nav>
+    </>
+  )
+
+  return (
+    <>
+      <button
+        type="button"
+        className={styles.toggle}
+        aria-label={open ? 'Menü schließen' : 'Menü öffnen'}
+        aria-expanded={open}
+        onClick={() => setOpen((v) => !v)}
+      >
+        <span className={`${styles.bar} ${open ? styles.bar1Open : ''}`} />
+        <span className={`${styles.bar} ${open ? styles.bar2Open : ''}`} />
+        <span className={`${styles.bar} ${open ? styles.bar3Open : ''}`} />
+      </button>
+
+      {mounted ? createPortal(drawer, document.body) : null}
     </>
   )
 }
