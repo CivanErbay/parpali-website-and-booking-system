@@ -3,7 +3,7 @@ import { getPayload } from 'payload'
 import config from '@payload-config'
 import styles from '../../manage.module.css'
 import { DateNav } from '@/components/Manage/DateNav/DateNav'
-import { DayBoard } from '@/components/Manage/DayBoard/DayBoard'
+import { DayView } from '@/components/Manage/DayView/DayView'
 import { buildDayGrid, isValidIso, isoToday } from '@/lib/dashboard'
 import {
   mapPolicy,
@@ -83,7 +83,7 @@ export default async function DayPage({ params }: { params: Promise<{ date: stri
         </div>
       </header>
 
-      <DayBoard grid={grid} date={date} tables={tableLite} />
+      <DayView grid={grid} date={date} tables={tableLite} />
     </div>
   )
 }

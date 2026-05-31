@@ -13,10 +13,10 @@ export const BookingSettings: GlobalConfig = {
           name: 'slotMinutes',
           type: 'number',
           required: true,
-          defaultValue: 15,
+          defaultValue: 30,
           min: 5,
           max: 60,
-          admin: { description: 'Reservier-Raster in Minuten (z.B. 15 = alle 15 Min).' },
+          admin: { description: 'Reservier-Raster in Minuten (z.B. 30 = Zeiten alle 30 Min).' },
         },
         {
           name: 'maxSeatsPerSlot',

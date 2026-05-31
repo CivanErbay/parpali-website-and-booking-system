@@ -52,27 +52,40 @@ const FOOTER_DATA = {
   bottomRight: 'Made with care in Berlin',
 }
 
+/**
+ * Opening hours from the client meeting (2026-05): durchgehender Service ab
+ * 11:30, letzte Reservierung 21:00 unter der Woche / 22:00 am Wochenende.
+ * `lastSeating` drives the bookable grid; `close` is the door-closing time and
+ * only needs to sit after `lastSeating` (the table is held 2.5h past seating).
+ * TODO(owner): confirm whether there is a Ruhetag (rest day) — seeded open daily.
+ */
+const WEEKDAY_LAST_SEATING: Record<string, string> = {
+  '1': '21:00', // Mo
+  '2': '21:00', // Di
+  '3': '21:00', // Mi
+  '4': '21:00', // Do
+  '5': '22:00', // Fr
+  '6': '22:00', // Sa
+  '0': '21:00', // So
+}
 const OPENING_HOURS_DATA = {
-  regular: [
-    { weekday: '1', isClosed: true, segments: [] },
-    { weekday: '2', isClosed: false, segments: [{ label: 'Abendservice', open: '17:30', close: '23:00' }] },
-    { weekday: '3', isClosed: false, segments: [{ label: 'Abendservice', open: '17:30', close: '23:00' }] },
-    { weekday: '4', isClosed: false, segments: [{ label: 'Abendservice', open: '17:30', close: '23:00' }] },
-    { weekday: '5', isClosed: false, segments: [
-      { label: 'Mittagsservice', open: '12:00', close: '14:30' },
-      { label: 'Abendservice', open: '17:30', close: '23:30' },
-    ] },
-    { weekday: '6', isClosed: false, segments: [
-      { label: 'Mittagsservice', open: '12:00', close: '15:00' },
-      { label: 'Abendservice', open: '17:30', close: '23:30' },
-    ] },
-    { weekday: '0', isClosed: false, segments: [{ label: 'Brunch & Mittag', open: '11:00', close: '15:30' }] },
-  ],
+  regular: Object.entries(WEEKDAY_LAST_SEATING).map(([weekday, lastSeating]) => ({
+    weekday,
+    isClosed: false,
+    segments: [
+      {
+        label: 'Durchgehend',
+        open: '11:30',
+        close: lastSeating === '22:00' ? '23:59' : '23:30',
+        lastSeating,
+      },
+    ],
+  })),
   holidays: [],
 }
 
 const BOOKING_SETTINGS_DATA = {
-  slotMinutes: 15,
+  slotMinutes: 30,
   maxSeatsPerSlot: 200,
   tableHoldMinutes: 150,
   maxPartyOnline: 8,
@@ -87,31 +100,46 @@ const BOOKING_SETTINGS_DATA = {
 }
 
 /**
- * Sample floor plan: 6×2-top, 4×4-top, 2×6-top (ADR-0012). `combine` lists
- * physically adjacent tables by label; resolved to ids in a second pass since
- * it is a self-relationship.
+ * Default floor plan from the client meeting (2026-05): ~30 numbered tables,
+ * mostly 2-tops (combinable) plus some 4-tops. `combine` lists physically
+ * adjacent tables by label (resolved to relationship ids in a second pass).
+ *
+ * Sensible default adjacency so combining works out of the box — the owner
+ * fine-tunes which tables actually push together in /manage → Tische:
+ *  - the 22 two-tops form one combinable row (each adjacent to its neighbours),
+ *    so up to `maxCombineTables` (3) push together → parties up to 6;
+ *  - the 8 four-tops form a second combinable row → parties up to 8 (two 4-tops).
  */
-const SEED_TABLES: {
+type SeedTable = {
   label: string
   capacity: number
   zone: 'main' | 'terrace' | 'bar' | 'private'
   combinable: boolean
   sortOrder: number
   combine: string[]
-}[] = [
-  { label: 'T1', capacity: 2, zone: 'terrace', combinable: true, sortOrder: 1, combine: ['T2'] },
-  { label: 'T2', capacity: 2, zone: 'terrace', combinable: true, sortOrder: 2, combine: ['T1'] },
-  { label: 'T3', capacity: 2, zone: 'main', combinable: true, sortOrder: 3, combine: ['T4'] },
-  { label: 'T4', capacity: 2, zone: 'main', combinable: true, sortOrder: 4, combine: ['T3'] },
-  { label: 'T5', capacity: 2, zone: 'main', combinable: true, sortOrder: 5, combine: ['T6'] },
-  { label: 'T6', capacity: 2, zone: 'main', combinable: true, sortOrder: 6, combine: ['T5'] },
-  { label: 'T7', capacity: 4, zone: 'main', combinable: true, sortOrder: 7, combine: ['T8'] },
-  { label: 'T8', capacity: 4, zone: 'main', combinable: true, sortOrder: 8, combine: ['T7'] },
-  { label: 'T9', capacity: 4, zone: 'main', combinable: true, sortOrder: 9, combine: ['T10'] },
-  { label: 'T10', capacity: 4, zone: 'main', combinable: true, sortOrder: 10, combine: ['T9'] },
-  { label: 'T11', capacity: 6, zone: 'main', combinable: false, sortOrder: 11, combine: [] },
-  { label: 'T12', capacity: 6, zone: 'private', combinable: false, sortOrder: 12, combine: [] },
-]
+}
+
+const TWO_TOP_COUNT = 22
+const FOUR_TOP_COUNT = 8
+
+const SEED_TABLES: SeedTable[] = (() => {
+  const out: SeedTable[] = []
+  const neighbours = (n: number, lo: number, hi: number): string[] => {
+    const c: string[] = []
+    if (n > lo) c.push(`T${n - 1}`)
+    if (n < hi) c.push(`T${n + 1}`)
+    return c
+  }
+  for (let n = 1; n <= TWO_TOP_COUNT; n++) {
+    out.push({ label: `T${n}`, capacity: 2, zone: 'main', combinable: true, sortOrder: n, combine: neighbours(n, 1, TWO_TOP_COUNT) })
+  }
+  const fourLo = TWO_TOP_COUNT + 1
+  const fourHi = TWO_TOP_COUNT + FOUR_TOP_COUNT
+  for (let n = fourLo; n <= fourHi; n++) {
+    out.push({ label: `T${n}`, capacity: 4, zone: 'main', combinable: true, sortOrder: n, combine: neighbours(n, fourLo, fourHi) })
+  }
+  return out
+})()
 
 const CONTACT_INFO_DATA = {
   restaurantName: 'Parpali',

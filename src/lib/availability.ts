@@ -13,6 +13,11 @@
 export interface OpeningSegment {
   open: string // HH:mm
   close: string // HH:mm
+  // Latest time a guest may *start* (last seating). When set, it caps the slot
+  // grid directly — independent of `close`, so the table can be held past close
+  // (a 21:00 booking keeps its table until 21:00 + hold). When absent, the last
+  // slot falls back to `close − tableHoldMinutes`.
+  lastSeating?: string // HH:mm
 }
 
 export interface OpeningRule {
@@ -26,6 +31,7 @@ export interface HolidayOverride {
   isClosed: boolean
   openOverride?: string
   closeOverride?: string
+  lastSeatingOverride?: string // HH:mm — see OpeningSegment.lastSeating
 }
 
 export interface BlackoutDate {
@@ -302,7 +308,13 @@ export function getOpenSlots(args: {
   const weekday = targetDate.getUTCDay()
   let segments: OpeningSegment[] = []
   if (holiday && holiday.openOverride && holiday.closeOverride) {
-    segments = [{ open: holiday.openOverride, close: holiday.closeOverride }]
+    segments = [
+      {
+        open: holiday.openOverride,
+        close: holiday.closeOverride,
+        lastSeating: holiday.lastSeatingOverride,
+      },
+    ]
   } else {
     const rule = openingRules.find((r) => r.weekday === weekday)
     if (!rule || rule.isClosed) return []
@@ -321,8 +333,11 @@ export function getOpenSlots(args: {
     const start = toMinutes(seg.open)
     const end = toMinutes(seg.close)
     if (end <= start) continue
-    // Last slot must allow the table to be fully held before close
-    const lastStart = end - policy.tableHoldMinutes
+    // Last slot: an explicit `lastSeating` caps the grid directly (table may be
+    // held past close); otherwise the table must be fully held before close.
+    const lastStart = seg.lastSeating
+      ? Math.min(toMinutes(seg.lastSeating), end)
+      : end - policy.tableHoldMinutes
     for (let t = start; t <= lastStart; t += policy.slotMinutes) {
       if (isToday) {
         const leadMinFromMidnight =

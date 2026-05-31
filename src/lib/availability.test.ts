@@ -228,6 +228,39 @@ describe('getOpenSlots', () => {
     })
     expect(slots.some((s) => s.time === '18:00')).toBe(false)
   })
+
+  it('caps the last slot at an explicit lastSeating, ignoring close − hold', () => {
+    // open 17:00–23:00, lastSeating 21:00 → last bookable slot is 21:00,
+    // even though close − hold would only allow 20:30. The table is held past
+    // close (21:00 + 2.5h = 23:30); that is intentional.
+    const openingRules: OpeningRule[] = [
+      { weekday: 1, isClosed: false, segments: [{ open: '17:00', close: '23:00', lastSeating: '21:00' }] },
+    ]
+    const slots = getOpenSlots({ ...base, partySize: 2, openingRules })
+    expect(slots[0].time).toBe('17:00')
+    expect(slots[slots.length - 1].time).toBe('21:00')
+  })
+
+  it('falls back to close − hold when no lastSeating is set', () => {
+    const slots = getOpenSlots({ ...base, partySize: 2, openingRules: openMonday() })
+    expect(slots[slots.length - 1].time).toBe('20:30')
+  })
+
+  it('clamps lastSeating to close when it is set later than close', () => {
+    const openingRules: OpeningRule[] = [
+      { weekday: 1, isClosed: false, segments: [{ open: '17:00', close: '19:00', lastSeating: '22:00' }] },
+    ]
+    const slots = getOpenSlots({ ...base, partySize: 2, openingRules })
+    expect(slots[slots.length - 1].time).toBe('19:00')
+  })
+
+  it('applies lastSeatingOverride from a holiday override', () => {
+    const holidayOverrides = [
+      { date: MON, isClosed: false, openOverride: '17:00', closeOverride: '23:00', lastSeatingOverride: '20:00' },
+    ]
+    const slots = getOpenSlots({ ...base, partySize: 2, holidayOverrides })
+    expect(slots[slots.length - 1].time).toBe('20:00')
+  })
 })
 
 // --- assignTableForBooking ------------------------------------------------

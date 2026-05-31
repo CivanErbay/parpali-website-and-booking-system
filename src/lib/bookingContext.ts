@@ -44,20 +44,20 @@ export function mapPolicy(settings: unknown): BookingPolicy {
 
 export function mapOpeningRules(hours: unknown): OpeningRule[] {
   const regular = (rec(hours).regular as
-    | { weekday?: string; isClosed?: boolean | null; segments?: { open?: string; close?: string }[] | null }[]
+    | { weekday?: string; isClosed?: boolean | null; segments?: { open?: string; close?: string; lastSeating?: string | null }[] | null }[]
     | undefined) ?? []
   return regular.map((r) => ({
     weekday: Number(r.weekday ?? 0),
     isClosed: Boolean(r.isClosed),
     segments: (r.segments ?? [])
-      .filter((s): s is { open: string; close: string } => Boolean(s?.open) && Boolean(s?.close))
-      .map((s) => ({ open: s.open, close: s.close })),
+      .filter((s): s is { open: string; close: string; lastSeating?: string | null } => Boolean(s?.open) && Boolean(s?.close))
+      .map((s) => ({ open: s.open, close: s.close, lastSeating: s.lastSeating || undefined })),
   }))
 }
 
 export function mapHolidays(hours: unknown): HolidayOverride[] {
   const holidays = (rec(hours).holidays as
-    | { date?: string; isClosed?: boolean | null; openOverride?: string | null; closeOverride?: string | null }[]
+    | { date?: string; isClosed?: boolean | null; openOverride?: string | null; closeOverride?: string | null; lastSeatingOverride?: string | null }[]
     | undefined) ?? []
   return holidays
     .filter((h): h is { date: string } => Boolean(h.date))
@@ -66,6 +66,7 @@ export function mapHolidays(hours: unknown): HolidayOverride[] {
       isClosed: Boolean((h as { isClosed?: boolean }).isClosed),
       openOverride: (h as { openOverride?: string }).openOverride ?? undefined,
       closeOverride: (h as { closeOverride?: string }).closeOverride ?? undefined,
+      lastSeatingOverride: (h as { lastSeatingOverride?: string }).lastSeatingOverride ?? undefined,
     }))
 }
 
