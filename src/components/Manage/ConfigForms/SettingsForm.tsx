@@ -17,8 +17,10 @@ export interface SettingsValues {
 
 type NumKey = Exclude<keyof SettingsValues, 'blackoutDates'>
 
+/** Buchbare Zeit-Intervalle, die der Inhaber auswählen kann. */
+const SLOT_OPTIONS = [15, 30, 60] as const
+
 const NUM_FIELDS: { key: NumKey; label: string; hint: string }[] = [
-  { key: 'slotMinutes', label: 'Reservier-Raster (Min)', hint: 'Abstand der buchbaren Zeiten.' },
   { key: 'tableHoldMinutes', label: 'Tisch-Haltezeit (Min)', hint: '150 = 2,5 Stunden.' },
   { key: 'minLeadTimeHours', label: 'Mindest-Vorlaufzeit (Std)', hint: 'Wie kurzfristig online gebucht werden darf.' },
   { key: 'maxPartyOnline', label: 'Max. Gruppe online', hint: 'Größere Gruppen müssen anrufen.' },
@@ -77,6 +79,24 @@ export function SettingsForm({ initial }: { initial: SettingsValues }) {
         <h2 className={styles.sectionTitle}>Reservierungs-Regeln</h2>
         <div className={styles.card}>
           <div className={styles.grid}>
+            <label className={styles.field}>
+              <span className={styles.label}>Zeitslot-Intervall</span>
+              <select
+                className={styles.select}
+                value={values.slotMinutes}
+                onChange={(e) => setNum('slotMinutes', Number(e.target.value))}
+              >
+                {(SLOT_OPTIONS.includes(values.slotMinutes as (typeof SLOT_OPTIONS)[number])
+                  ? SLOT_OPTIONS
+                  : [values.slotMinutes, ...SLOT_OPTIONS]
+                ).map((m) => (
+                  <option key={m} value={m}>
+                    Alle {m} Minuten
+                  </option>
+                ))}
+              </select>
+              <span className={styles.hint}>Abstand der online buchbaren Uhrzeiten (z.&nbsp;B. 11:30, 12:00, 12:30 …).</span>
+            </label>
             {NUM_FIELDS.map((f) => (
               <label key={f.key} className={styles.field}>
                 <span className={styles.label}>{f.label}</span>
