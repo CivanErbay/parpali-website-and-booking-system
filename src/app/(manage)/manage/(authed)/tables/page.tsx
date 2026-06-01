@@ -39,18 +39,13 @@ export default async function TablesPage() {
     combinesWith: relIds(t.combinesWith),
   }))
 
-  const activeCount = initial.filter((t) => t.active).length
-  const totalSeats = initial.filter((t) => t.active).reduce((s, t) => s + t.capacity, 0)
-
   return (
     <div className={styles.page}>
       <header className={styles.header}>
         <div className={styles.headMain}>
           <p className={styles.eyebrow}>Konfiguration</p>
           <h1 className={styles.title}>Tische</h1>
-          <p className={styles.subtitle}>
-            {activeCount} aktive Tische · {totalSeats} Plätze gesamt
-          </p>
+          <p className={styles.subtitle}>Plätze, Bereich und Verfügbarkeit eurer Tische verwalten.</p>
         </div>
       </header>
       <TablesManager initial={initial} />

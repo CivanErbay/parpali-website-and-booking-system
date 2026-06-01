@@ -36,12 +36,11 @@ export const Tables: CollectionConfig = {
         {
           name: 'zone',
           type: 'select',
+          label: 'Bereich',
           defaultValue: 'main',
           options: [
-            { label: 'Hauptraum', value: 'main' },
-            { label: 'Terrasse', value: 'terrace' },
-            { label: 'Bar', value: 'bar' },
-            { label: 'Nebenraum', value: 'private' },
+            { label: 'Innen', value: 'main' },
+            { label: 'Außen', value: 'terrace' },
           ],
         },
         { name: 'combinable', type: 'checkbox', defaultValue: false, label: 'Kombinierbar' },

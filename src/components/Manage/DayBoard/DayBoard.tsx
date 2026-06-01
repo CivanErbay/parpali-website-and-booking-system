@@ -26,10 +26,11 @@ interface DayBoardProps {
 }
 
 const ZONE_LABELS: Record<string, string> = {
-  main: 'Hauptraum',
-  terrace: 'Terrasse',
-  bar: 'Bar',
-  private: 'Nebenraum',
+  main: 'Innen',
+  terrace: 'Außen',
+  // legacy values fall back to a sensible label
+  bar: 'Innen',
+  private: 'Innen',
 }
 
 export function DayBoard({ grid, date, tables }: DayBoardProps) {

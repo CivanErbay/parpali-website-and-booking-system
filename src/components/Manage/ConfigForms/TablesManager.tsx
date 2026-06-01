@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import styles from './forms.module.css'
+import styles from './TablesManager.module.css'
 
 export interface TableRow {
   id: string
@@ -14,243 +14,243 @@ export interface TableRow {
   combinesWith: string[]
 }
 
-interface EditableTable extends TableRow {
+/** Editable row — only the fields the owner actually manages. Combining is
+ * preconfigured and intentionally not surfaced here; `sortOrder` follows the
+ * row's position in the list (no raw number to type). */
+interface EditableTable {
   _key: string
+  id: string
+  label: string
+  capacity: number
+  zone: 'main' | 'terrace' // main = Innen, terrace = Außen
+  active: boolean
+  dirty: boolean
 }
-
-const ZONES: { value: string; label: string }[] = [
-  { value: 'main', label: 'Hauptraum' },
-  { value: 'terrace', label: 'Terrasse' },
-  { value: 'bar', label: 'Bar' },
-  { value: 'private', label: 'Nebenraum' },
-]
 
 let keyCounter = 0
 const newKey = () => `t${Date.now()}_${keyCounter++}`
 
+const toZone = (z: string): 'main' | 'terrace' => (z === 'terrace' ? 'terrace' : 'main')
+
 export function TablesManager({ initial }: { initial: TableRow[] }) {
-  const [tables, setTables] = useState<EditableTable[]>(
-    initial.map((t) => ({ ...t, _key: newKey() })),
+  const [rows, setRows] = useState<EditableTable[]>(
+    initial.map((t) => ({
+      _key: newKey(),
+      id: t.id,
+      label: t.label,
+      capacity: t.capacity,
+      zone: toZone(t.zone),
+      active: t.active,
+      dirty: false,
+    })),
   )
-  const [status, setStatus] = useState<Record<string, { ok: boolean; msg: string }>>({})
+  const [saving, setSaving] = useState(false)
+  const [status, setStatus] = useState<{ ok: boolean; msg: string } | null>(null)
   const [busyKey, setBusyKey] = useState<string | null>(null)
 
-  const update = (key: string, patch: Partial<EditableTable>) =>
-    setTables((p) => p.map((t) => (t._key === key ? { ...t, ...patch } : t)))
+  const dirtyCount = rows.filter((r) => r.dirty).length
+
+  const patch = (key: string, p: Partial<EditableTable>) =>
+    setRows((rs) => rs.map((r) => (r._key === key ? { ...r, ...p, dirty: true } : r)))
+
+  const move = (key: string, dir: -1 | 1) =>
+    setRows((rs) => {
+      const i = rs.findIndex((r) => r._key === key)
+      const j = i + dir
+      if (i < 0 || j < 0 || j >= rs.length) return rs
+      const next = [...rs]
+      ;[next[i], next[j]] = [next[j], next[i]]
+      next[i] = { ...next[i], dirty: true }
+      next[j] = { ...next[j], dirty: true }
+      return next
+    })
 
   const add = () =>
-    setTables((p) => [
-      ...p,
-      {
-        _key: newKey(),
-        id: '',
-        label: '',
-        capacity: 2,
-        zone: 'main',
-        sortOrder: p.length + 1,
-        combinable: false,
-        active: true,
-        combinesWith: [],
-      },
+    setRows((rs) => [
+      ...rs,
+      { _key: newKey(), id: '', label: '', capacity: 2, zone: 'main', active: true, dirty: true },
     ])
 
-  async function save(key: string) {
-    const table = tables.find((t) => t._key === key)
-    if (!table) return
-    setBusyKey(key)
-    setStatus((s) => ({ ...s, [key]: { ok: true, msg: '' } }))
-    const url = table.id ? `/api/manage/tables/${table.id}` : '/api/manage/tables'
-    try {
-      const res = await fetch(url, {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify({
-          label: table.label,
-          capacity: table.capacity,
-          zone: table.zone,
-          sortOrder: table.sortOrder,
-          combinable: table.combinable,
-          active: table.active,
-          combinesWith: table.combinesWith,
-        }),
-      })
-      const data = (await res.json().catch(() => ({}))) as { id?: string; error?: string }
-      if (!res.ok) {
-        setStatus((s) => ({ ...s, [key]: { ok: false, msg: data.error ?? 'Fehler' } }))
-      } else {
-        if (!table.id && data.id) update(key, { id: data.id })
-        setStatus((s) => ({ ...s, [key]: { ok: true, msg: 'Gespeichert.' } }))
-      }
-    } catch {
-      setStatus((s) => ({ ...s, [key]: { ok: false, msg: 'Netzwerkfehler.' } }))
-    } finally {
-      setBusyKey(null)
-    }
-  }
-
-  async function remove(key: string) {
-    const table = tables.find((t) => t._key === key)
-    if (!table) return
-    if (!table.id) {
-      setTables((p) => p.filter((t) => t._key !== key))
+  async function removeRow(key: string) {
+    const row = rows.find((r) => r._key === key)
+    if (!row) return
+    if (!row.id) {
+      setRows((rs) => rs.filter((r) => r._key !== key))
       return
     }
+    if (!window.confirm(`Tisch „${row.label || row.id}" wirklich löschen?`)) return
     setBusyKey(key)
+    setStatus(null)
     try {
-      const res = await fetch(`/api/manage/tables/${table.id}`, { method: 'DELETE' })
+      const res = await fetch(`/api/manage/tables/${row.id}`, { method: 'DELETE' })
       if (res.ok) {
-        setTables((p) => p.filter((t) => t._key !== key))
+        setRows((rs) => rs.filter((r) => r._key !== key))
       } else {
         const data = (await res.json().catch(() => ({}))) as { error?: string }
-        setStatus((s) => ({ ...s, [key]: { ok: false, msg: data.error ?? 'Löschen fehlgeschlagen.' } }))
+        setStatus({ ok: false, msg: data.error ?? 'Löschen fehlgeschlagen.' })
       }
     } catch {
-      setStatus((s) => ({ ...s, [key]: { ok: false, msg: 'Netzwerkfehler.' } }))
+      setStatus({ ok: false, msg: 'Netzwerkfehler.' })
     } finally {
       setBusyKey(null)
     }
   }
 
+  async function saveAll() {
+    const missing = rows.find((r) => r.dirty && r.label.trim().length < 1)
+    if (missing) {
+      setStatus({ ok: false, msg: 'Bitte allen Tischen einen Namen geben.' })
+      return
+    }
+    setSaving(true)
+    setStatus(null)
+    let saved = 0
+    try {
+      // Sequential so an error points at a concrete table; sortOrder = position.
+      for (let i = 0; i < rows.length; i++) {
+        const row = rows[i]
+        if (!row.dirty) continue
+        const url = row.id ? `/api/manage/tables/${row.id}` : '/api/manage/tables'
+        const res = await fetch(url, {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({
+            label: row.label.trim(),
+            capacity: row.capacity,
+            zone: row.zone,
+            active: row.active,
+            sortOrder: i,
+          }),
+        })
+        const data = (await res.json().catch(() => ({}))) as { id?: string; error?: string }
+        if (!res.ok) {
+          setStatus({ ok: false, msg: `„${row.label}": ${data.error ?? 'Fehler beim Speichern.'}` })
+          return
+        }
+        const newId = !row.id && data.id ? data.id : row.id
+        setRows((rs) => rs.map((r) => (r._key === row._key ? { ...r, id: newId, dirty: false } : r)))
+        saved++
+      }
+      setStatus({ ok: true, msg: saved === 0 ? 'Keine Änderungen.' : `${saved} Tisch(e) gespeichert.` })
+    } catch {
+      setStatus({ ok: false, msg: 'Netzwerkfehler.' })
+    } finally {
+      setSaving(false)
+    }
+  }
+
+  const activeCount = rows.filter((r) => r.active).length
+  const seats = rows.filter((r) => r.active).reduce((s, r) => s + r.capacity, 0)
+
   return (
-    <div className={styles.form}>
-      <div className={styles.list}>
-        {tables.length === 0 ? <p className={styles.empty}>Noch keine Tische.</p> : null}
-        {tables.map((t) => {
-          const st = status[t._key]
-          const others = tables.filter((o) => o.id && o.id !== t.id)
-          return (
-            <div key={t._key} className={styles.tableCard}>
-              <div className={styles.tableCardHead}>
-                <h3 className={styles.tableCardTitle}>{t.label || 'Neuer Tisch'}</h3>
-                <button
-                  type="button"
-                  className={styles.deleteBtn}
-                  disabled={busyKey === t._key}
-                  onClick={() => remove(t._key)}
-                >
-                  Löschen
-                </button>
-              </div>
+    <div className={styles.root}>
+      <p className={styles.intro}>
+        Hier verwaltest du eure Tische. Lege fest, wie viele <strong>Plätze</strong> jeder Tisch hat
+        und ob er <strong>innen</strong> oder <strong>außen</strong> steht. Ein Tisch gerade nicht
+        buchbar (z.&nbsp;B. defekt)? Einfach auf <strong>inaktiv</strong> stellen. Mit den Pfeilen
+        änderst du die Reihenfolge im Tagesplan.
+      </p>
 
-              <div className={styles.grid}>
-                <label className={styles.field}>
-                  <span className={styles.label}>Tischname</span>
-                  <input
-                    type="text"
-                    className={styles.input}
-                    value={t.label}
-                    onChange={(e) => update(t._key, { label: e.target.value })}
-                  />
-                </label>
-                <label className={styles.field}>
-                  <span className={styles.label}>Plätze</span>
-                  <input
-                    type="number"
-                    min={1}
-                    max={20}
-                    className={styles.input}
-                    value={t.capacity}
-                    onChange={(e) => update(t._key, { capacity: Number(e.target.value) })}
-                  />
-                </label>
-                <label className={styles.field}>
-                  <span className={styles.label}>Bereich</span>
-                  <select
-                    className={styles.select}
-                    value={t.zone}
-                    onChange={(e) => update(t._key, { zone: e.target.value })}
-                  >
-                    {ZONES.map((z) => (
-                      <option key={z.value} value={z.value}>
-                        {z.label}
-                      </option>
-                    ))}
-                  </select>
-                </label>
-                <label className={styles.field}>
-                  <span className={styles.label}>Reihenfolge</span>
-                  <input
-                    type="number"
-                    className={styles.input}
-                    value={t.sortOrder}
-                    onChange={(e) => update(t._key, { sortOrder: Number(e.target.value) })}
-                  />
-                </label>
-              </div>
-
-              <div className={styles.grid}>
-                <label className={styles.check}>
-                  <input
-                    type="checkbox"
-                    checked={t.active}
-                    onChange={(e) => update(t._key, { active: e.target.checked })}
-                  />
-                  Aktiv (buchbar)
-                </label>
-                <label className={styles.check}>
-                  <input
-                    type="checkbox"
-                    checked={t.combinable}
-                    onChange={(e) => update(t._key, { combinable: e.target.checked })}
-                  />
-                  Kombinierbar
-                </label>
-              </div>
-
-              {t.combinable ? (
-                <div className={styles.field}>
-                  <span className={styles.label}>Kombinierbar mit (benachbarte Tische)</span>
-                  {others.length === 0 ? (
-                    <span className={styles.hint}>Erst weitere Tische speichern.</span>
-                  ) : (
-                    <div className={styles.checkGrid}>
-                      {others.map((o) => (
-                        <label key={o.id} className={styles.check}>
-                          <input
-                            type="checkbox"
-                            checked={t.combinesWith.includes(o.id)}
-                            onChange={(e) =>
-                              update(t._key, {
-                                combinesWith: e.target.checked
-                                  ? [...t.combinesWith, o.id]
-                                  : t.combinesWith.filter((x) => x !== o.id),
-                              })
-                            }
-                          />
-                          {o.label || o.id}
-                        </label>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              ) : null}
-
-              <div className={styles.saveBar}>
-                <button
-                  type="button"
-                  className={styles.saveBtn}
-                  disabled={busyKey === t._key}
-                  onClick={() => save(t._key)}
-                >
-                  {busyKey === t._key ? 'Speichern …' : 'Tisch speichern'}
-                </button>
-                {st && st.msg ? (
-                  <span
-                    className={`${styles.status} ${st.ok ? styles.statusOk : styles.statusErr}`}
-                    role="status"
-                  >
-                    {st.msg}
-                  </span>
-                ) : null}
-              </div>
-            </div>
-          )
-        })}
+      <div className={styles.summary}>
+        {activeCount} aktive Tische · {seats} Plätze
       </div>
 
-      <button type="button" className={styles.addBtn} onClick={add}>
-        + Neuer Tisch
-      </button>
+      {rows.length === 0 ? (
+        <div className={styles.empty}>
+          <p>Noch keine Tische angelegt.</p>
+          <button type="button" className={styles.addBtn} onClick={add}>
+            + Ersten Tisch hinzufügen
+          </button>
+        </div>
+      ) : (
+        <ul className={styles.list}>
+          {rows.map((r, i) => (
+            <li key={r._key} className={r.active ? styles.row : `${styles.row} ${styles.rowInactive}`}>
+              <div className={styles.order}>
+                <button type="button" className={styles.orderBtn} disabled={i === 0} aria-label="Nach oben" onClick={() => move(r._key, -1)}>↑</button>
+                <button type="button" className={styles.orderBtn} disabled={i === rows.length - 1} aria-label="Nach unten" onClick={() => move(r._key, 1)}>↓</button>
+              </div>
+
+              <label className={styles.nameField}>
+                <span className={styles.fieldLabel}>Tisch</span>
+                <input
+                  type="text"
+                  className={styles.nameInput}
+                  placeholder="z. B. T1"
+                  value={r.label}
+                  onChange={(e) => patch(r._key, { label: e.target.value })}
+                />
+              </label>
+
+              <div className={styles.seatsField}>
+                <span className={styles.fieldLabel}>Plätze</span>
+                <div className={styles.stepper}>
+                  <button type="button" className={styles.stepBtn} aria-label="Weniger Plätze" onClick={() => patch(r._key, { capacity: Math.max(1, r.capacity - 1) })}>−</button>
+                  <input
+                    type="number"
+                    inputMode="numeric"
+                    min={1}
+                    max={20}
+                    className={styles.stepInput}
+                    value={r.capacity}
+                    onChange={(e) => patch(r._key, { capacity: Math.min(20, Math.max(1, Number(e.target.value) || 1)) })}
+                  />
+                  <button type="button" className={styles.stepBtn} aria-label="Mehr Plätze" onClick={() => patch(r._key, { capacity: Math.min(20, r.capacity + 1) })}>+</button>
+                </div>
+              </div>
+
+              <div className={styles.zoneField}>
+                <span className={styles.fieldLabel}>Bereich</span>
+                <div className={styles.segmented} role="group" aria-label="Bereich">
+                  <button type="button" className={r.zone === 'main' ? `${styles.segBtn} ${styles.segOn}` : styles.segBtn} aria-pressed={r.zone === 'main'} onClick={() => patch(r._key, { zone: 'main' })}>Innen</button>
+                  <button type="button" className={r.zone === 'terrace' ? `${styles.segBtn} ${styles.segOn}` : styles.segBtn} aria-pressed={r.zone === 'terrace'} onClick={() => patch(r._key, { zone: 'terrace' })}>Außen</button>
+                </div>
+              </div>
+
+              <div className={styles.activeField}>
+                <span className={styles.fieldLabel}>Buchbar</span>
+                <button
+                  type="button"
+                  className={r.active ? `${styles.toggle} ${styles.toggleOn}` : styles.toggle}
+                  role="switch"
+                  aria-checked={r.active}
+                  onClick={() => patch(r._key, { active: !r.active })}
+                >
+                  <span className={styles.toggleKnob} aria-hidden="true" />
+                  <span className={styles.toggleText}>{r.active ? 'Aktiv' : 'Inaktiv'}</span>
+                </button>
+              </div>
+
+              <button
+                type="button"
+                className={styles.deleteBtn}
+                disabled={busyKey === r._key}
+                aria-label={`Tisch ${r.label || ''} löschen`}
+                onClick={() => removeRow(r._key)}
+              >
+                🗑
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
+
+      {rows.length > 0 ? (
+        <button type="button" className={styles.addBtn} onClick={add}>
+          + Tisch hinzufügen
+        </button>
+      ) : null}
+
+      <div className={styles.saveBar}>
+        <button type="button" className={styles.saveBtn} disabled={saving || dirtyCount === 0} onClick={saveAll}>
+          {saving ? 'Speichern …' : dirtyCount > 0 ? `Alle Änderungen speichern (${dirtyCount})` : 'Gespeichert'}
+        </button>
+        {status ? (
+          <span className={status.ok ? `${styles.status} ${styles.statusOk}` : `${styles.status} ${styles.statusErr}`} role="status">
+            {status.msg}
+          </span>
+        ) : null}
+      </div>
     </div>
   )
 }
