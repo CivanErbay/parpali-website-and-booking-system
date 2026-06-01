@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server'
 import { withUser } from '@/lib/manageAuth'
 
-const ZONES = ['main', 'terrace', 'bar', 'private'] as const
+const ZONES = ['main', 'terrace'] as const // main = Innen, terrace = Außen
 type Zone = (typeof ZONES)[number]
 
 export interface TableInput {
