@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import styles from './BookingForm.module.css'
+import { DatePicker } from './DatePicker'
 
 interface SlotResponse {
   slots?: { time: string }[]
@@ -128,17 +129,10 @@ export function BookingForm({ phone, maxPartyOnline = 8 }: BookingFormProps) {
       <fieldset className={styles.fieldset}>
         <legend className={styles.legend}>1 · Datum &amp; Personen</legend>
         <div className={styles.row}>
-          <label className={styles.field}>
+          <div className={styles.field}>
             <span className={styles.label}>Datum</span>
-            <input
-              type="date"
-              required
-              min={todayIso()}
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className={styles.input}
-            />
-          </label>
+            <DatePicker value={date} onChange={setDate} min={todayIso()} ariaLabel="Datum" />
+          </div>
           <label className={styles.field}>
             <span className={styles.label}>Personen</span>
             <select
