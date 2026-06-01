@@ -16,7 +16,7 @@ import {
   mapTables,
   mapReservations,
 } from '../../../lib/bookingContext'
-import { reservationConfirmationHtml, sendEmail } from '../../../lib/email'
+import { reservationConfirmationHtml, reservationOwnerNotificationHtml, sendEmail } from '../../../lib/email'
 
 const DATE_RE = /^\d{4}-\d{2}-\d{2}$/
 const TIME_RE = /^\d{2}:\d{2}$/
@@ -223,15 +223,16 @@ export async function POST(req: Request): Promise<NextResponse> {
       await sendEmail({
         to: restaurantEmail,
         subject: `Neue Reservierung — ${data.name} · ${data.date} ${data.time} · ${data.partySize}P`,
-        html: reservationConfirmationHtml({
-          name: data.name,
+        html: reservationOwnerNotificationHtml({
+          guestName: data.name,
+          guestEmail: data.email,
+          guestPhone: data.phone,
           date: data.date,
           time: data.time,
           partySize: data.partySize,
           notes: data.notes,
-          restaurantName: 'Parpali (Admin-Kopie)',
-          restaurantPhone,
-          restaurantEmail,
+          source: 'web',
+          restaurantName,
         }),
         replyTo: data.email,
       })
