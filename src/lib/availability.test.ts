@@ -246,12 +246,12 @@ describe('getOpenSlots', () => {
     expect(slots[slots.length - 1].time).toBe('20:30')
   })
 
-  it('clamps lastSeating to close when it is set later than close', () => {
+  it('treats lastSeating as the last start even past close (table held beyond close)', () => {
     const openingRules: OpeningRule[] = [
-      { weekday: 1, isClosed: false, segments: [{ open: '17:00', close: '19:00', lastSeating: '22:00' }] },
+      { weekday: 1, isClosed: false, segments: [{ open: '17:00', close: '21:00', lastSeating: '22:00' }] },
     ]
     const slots = getOpenSlots({ ...base, partySize: 2, openingRules })
-    expect(slots[slots.length - 1].time).toBe('19:00')
+    expect(slots[slots.length - 1].time).toBe('22:00')
   })
 
   it('applies lastSeatingOverride from a holiday override', () => {

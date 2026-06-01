@@ -32,6 +32,7 @@ export async function POST(req: Request): Promise<NextResponse> {
             label: typeof s.label === 'string' && s.label ? s.label : 'Service',
             open: String(s.open),
             close: String(s.close),
+            lastSeating: TIME_RE.test(String(s.lastSeating)) ? String(s.lastSeating) : undefined,
           })),
       }))
 
@@ -44,6 +45,7 @@ export async function POST(req: Request): Promise<NextResponse> {
         isClosed: Boolean(h.isClosed),
         openOverride: TIME_RE.test(String(h.openOverride)) ? String(h.openOverride) : undefined,
         closeOverride: TIME_RE.test(String(h.closeOverride)) ? String(h.closeOverride) : undefined,
+        lastSeatingOverride: TIME_RE.test(String(h.lastSeatingOverride)) ? String(h.lastSeatingOverride) : undefined,
       }))
 
     try {

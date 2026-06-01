@@ -29,6 +29,7 @@ export default async function HoursPage() {
               label: typeof s.label === 'string' && s.label ? s.label : 'Service',
               open: String(s.open ?? ''),
               close: String(s.close ?? ''),
+              lastSeating: typeof s.lastSeating === 'string' ? s.lastSeating : '',
             }))
             .filter((s) => s.open && s.close)
         : []

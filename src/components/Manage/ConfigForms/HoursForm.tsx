@@ -8,6 +8,7 @@ export interface Segment {
   label: string
   open: string
   close: string
+  lastSeating: string // HH:mm — letzte buchbare Reservierung; leer = (Schluss − Haltezeit)
 }
 export interface WeekdayRule {
   weekday: string
@@ -57,7 +58,7 @@ export function HoursForm({
     )
   const addSegment = (di: number) =>
     updateDay(di, {
-      segments: [...regular[di].segments, { label: 'Service', open: '18:00', close: '23:00' }],
+      segments: [...regular[di].segments, { label: 'Service', open: '18:00', close: '23:00', lastSeating: '' }],
     })
   const removeSegment = (di: number, si: number) =>
     updateDay(di, { segments: regular[di].segments.filter((_, sx) => sx !== si) })
@@ -136,12 +137,21 @@ export function HoursForm({
                         />
                       </div>
                       <div className={styles.rowField}>
-                        <span className={styles.label}>Bis</span>
+                        <span className={styles.label}>Bis (Schluss)</span>
                         <input
                           type="time"
                           className={styles.inlineInput}
                           value={seg.close}
                           onChange={(e) => updateSegment(di, si, { close: e.target.value })}
+                        />
+                      </div>
+                      <div className={styles.rowField}>
+                        <span className={styles.label}>Letzte Reservierung</span>
+                        <input
+                          type="time"
+                          className={styles.inlineInput}
+                          value={seg.lastSeating}
+                          onChange={(e) => updateSegment(di, si, { lastSeating: e.target.value })}
                         />
                       </div>
                       <button
@@ -153,6 +163,10 @@ export function HoursForm({
                       </button>
                     </div>
                   ))}
+                  <span className={styles.hint}>
+                    „Letzte Reservierung" = späteste online buchbare Uhrzeit (z.&nbsp;B. 21:00 / am
+                    Wochenende 22:00). Leer = automatisch (Schluss minus Tisch-Haltezeit).
+                  </span>
                   <button type="button" className={styles.addBtn} onClick={() => addSegment(di)}>
                     + Service-Zeit
                   </button>

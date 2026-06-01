@@ -333,10 +333,12 @@ export function getOpenSlots(args: {
     const start = toMinutes(seg.open)
     const end = toMinutes(seg.close)
     if (end <= start) continue
-    // Last slot: an explicit `lastSeating` caps the grid directly (table may be
-    // held past close); otherwise the table must be fully held before close.
+    // An explicit `lastSeating` IS the last bookable start — authoritative and
+    // independent of `close` (the table is simply held its hold-window past
+    // close, e.g. a 22:00 booking keeps its table until 00:30). Without it, the
+    // last slot falls back to `close − tableHoldMinutes`.
     const lastStart = seg.lastSeating
-      ? Math.min(toMinutes(seg.lastSeating), end)
+      ? toMinutes(seg.lastSeating)
       : end - policy.tableHoldMinutes
     for (let t = start; t <= lastStart; t += policy.slotMinutes) {
       if (isToday) {
