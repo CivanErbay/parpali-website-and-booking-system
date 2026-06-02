@@ -49,7 +49,17 @@ export async function sendEmail({ to, subject, html, replyTo }: SendArgs): Promi
   }
   const { Resend } = await import('resend')
   const client = new Resend(apiKey)
-  const result = await client.emails.send({ from: SENDER, to, subject, html, text: htmlToText(html), replyTo })
+  // List-Unsubscribe (mailto form) — improves treatment by some spam filters.
+  const senderEmail = (SENDER.match(/<([^>]+)>/)?.[1] ?? SENDER).trim()
+  const result = await client.emails.send({
+    from: SENDER,
+    to,
+    subject,
+    html,
+    text: htmlToText(html),
+    replyTo,
+    headers: { 'List-Unsubscribe': `<mailto:${senderEmail}?subject=Abmelden>` },
+  })
   if (result.error) {
     throw new Error(`Resend send failed: ${result.error.message}`)
   }
@@ -97,7 +107,7 @@ function emailLayout(opts: {
     .map(
       (r) => `
         <tr>
-          <td style="padding:6px 20px 6px 0;color:${C.fg3};font-size:14px;vertical-align:top;white-space:nowrap;">${escapeHtml(r.label)}</td>
+          <td style="padding:6px 20px 6px 0;color:${C.fg2};font-size:14px;vertical-align:top;white-space:nowrap;">${escapeHtml(r.label)}</td>
           <td style="padding:6px 0;color:${C.fg};font-size:15px;font-weight:700;">${r.value}</td>
         </tr>`,
     )
@@ -116,7 +126,7 @@ function emailLayout(opts: {
     <tr><td align="center">
       <table role="presentation" width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
         <tr><td style="padding:8px 8px 20px;text-align:center;">
-          <div style="font-family:${SERIF};font-size:13px;letter-spacing:0.28em;text-transform:uppercase;color:${C.fg3};">${escapeHtml(eyebrow)}</div>
+          <div style="font-family:${SERIF};font-size:13px;letter-spacing:0.28em;text-transform:uppercase;color:${C.fg2};">${escapeHtml(eyebrow)}</div>
           <div style="font-family:${SERIF};font-style:italic;font-size:30px;color:${C.fg};margin-top:4px;">Parpali</div>
         </td></tr>
         <tr><td style="background:${C.card};border:1px solid ${C.border};border-radius:14px;padding:36px 32px;">
@@ -128,7 +138,7 @@ function emailLayout(opts: {
         </td></tr>
         ${
           footerHtml
-            ? `<tr><td style="padding:22px 32px 8px;font-family:${SANS};font-size:13px;line-height:1.6;color:${C.fg3};">${footerHtml}</td></tr>`
+            ? `<tr><td style="padding:22px 32px 8px;font-family:${SANS};font-size:13px;line-height:1.6;color:${C.fg2};">${footerHtml}</td></tr>`
             : ''
         }
       </table>
