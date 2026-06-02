@@ -211,10 +211,9 @@ export function BookingForm({ phone, maxPartyOnline = 8 }: BookingFormProps) {
               />
             </label>
             <label className={styles.field}>
-              <span className={styles.label}>Telefon</span>
+              <span className={styles.label}>Telefon (optional)</span>
               <input
                 type="tel"
-                required
                 autoComplete="tel"
                 value={phoneInput}
                 onChange={(e) => setPhoneInput(e.target.value)}

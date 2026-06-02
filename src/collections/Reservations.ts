@@ -38,7 +38,7 @@ export const Reservations: CollectionConfig = {
       fields: [
         { name: 'name', type: 'text', required: true },
         { name: 'email', type: 'email', required: true },
-        { name: 'phone', type: 'text', required: true },
+        { name: 'phone', type: 'text' },
       ],
     },
     { name: 'notes', type: 'textarea' },

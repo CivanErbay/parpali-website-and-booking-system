@@ -20,11 +20,11 @@ export async function GET(req: Request): Promise<NextResponse> {
   const partySizeParam = url.searchParams.get('partySize')
 
   if (!date || !DATE_RE.test(date)) {
-    return NextResponse.json({ error: 'Invalid or missing date (YYYY-MM-DD).' }, { status: 400 })
+    return NextResponse.json({ error: 'Ungültiges oder fehlendes Datum.' }, { status: 400 })
   }
   const partySize = Number(partySizeParam)
   if (!Number.isInteger(partySize) || partySize < 1) {
-    return NextResponse.json({ error: 'Invalid or missing partySize.' }, { status: 400 })
+    return NextResponse.json({ error: 'Ungültige oder fehlende Personenzahl.' }, { status: 400 })
   }
 
   const payload = await getPayload({ config })

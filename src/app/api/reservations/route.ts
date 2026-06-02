@@ -33,15 +33,16 @@ interface ReservationPayload {
 }
 
 function validate(body: unknown): { ok: true; data: ReservationPayload } | { ok: false; error: string } {
-  if (!body || typeof body !== 'object') return { ok: false, error: 'Invalid body.' }
+  if (!body || typeof body !== 'object') return { ok: false, error: 'Ungültige Anfrage.' }
   const b = body as Record<string, unknown>
-  if (typeof b.date !== 'string' || !DATE_RE.test(b.date)) return { ok: false, error: 'Invalid date.' }
-  if (typeof b.time !== 'string' || !TIME_RE.test(b.time)) return { ok: false, error: 'Invalid time.' }
+  if (typeof b.date !== 'string' || !DATE_RE.test(b.date)) return { ok: false, error: 'Ungültiges Datum.' }
+  if (typeof b.time !== 'string' || !TIME_RE.test(b.time)) return { ok: false, error: 'Ungültige Uhrzeit.' }
   const partySize = Number(b.partySize)
-  if (!Number.isInteger(partySize) || partySize < 1 || partySize > 30) return { ok: false, error: 'Invalid party size.' }
-  if (typeof b.name !== 'string' || b.name.trim().length < 2) return { ok: false, error: 'Name required.' }
-  if (typeof b.email !== 'string' || !EMAIL_RE.test(b.email)) return { ok: false, error: 'Valid email required.' }
-  if (typeof b.phone !== 'string' || b.phone.trim().length < 4) return { ok: false, error: 'Phone required.' }
+  if (!Number.isInteger(partySize) || partySize < 1 || partySize > 30) return { ok: false, error: 'Ungültige Personenzahl.' }
+  if (typeof b.name !== 'string' || b.name.trim().length < 2) return { ok: false, error: 'Bitte gib deinen Namen an.' }
+  if (typeof b.email !== 'string' || !EMAIL_RE.test(b.email)) return { ok: false, error: 'Bitte gib eine gültige E-Mail-Adresse an.' }
+  // Telefon ist optional.
+  const phone = typeof b.phone === 'string' ? b.phone.trim() : ''
   return {
     ok: true,
     data: {
@@ -50,7 +51,7 @@ function validate(body: unknown): { ok: true; data: ReservationPayload } | { ok:
       partySize,
       name: b.name.trim(),
       email: b.email.trim(),
-      phone: b.phone.trim(),
+      phone,
       notes: typeof b.notes === 'string' ? b.notes.trim() : undefined,
     },
   }
@@ -61,7 +62,7 @@ export async function POST(req: Request): Promise<NextResponse> {
   try {
     body = await req.json()
   } catch {
-    return NextResponse.json({ error: 'Invalid JSON.' }, { status: 400 })
+    return NextResponse.json({ error: 'Ungültige Anfrage.' }, { status: 400 })
   }
   const v = validate(body)
   if (!v.ok) return NextResponse.json({ error: v.error }, { status: 400 })
