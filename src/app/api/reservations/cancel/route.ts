@@ -86,6 +86,15 @@ export async function POST(req: Request): Promise<Response> {
           date: String(doc.date).slice(0, 10),
           time: String(doc.time),
           restaurantName: String(contact?.restaurantName ?? 'Parpali'),
+          restaurantPhone: String(contact?.phone ?? '') || undefined,
+          restaurantEmail: String(contact?.email ?? '') || undefined,
+          restaurantAddress:
+            [
+              String(contact?.street ?? ''),
+              [String(contact?.zip ?? ''), String(contact?.city ?? '')].filter((s) => s.trim()).join(' '),
+            ]
+              .filter((s) => s.trim())
+              .join(', ') || undefined,
         }),
       })
     } catch (err) {

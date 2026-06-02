@@ -201,6 +201,12 @@ export async function POST(req: Request): Promise<NextResponse> {
   const restaurantName = String(contact?.restaurantName ?? 'Parpali')
   const restaurantPhone = String(contact?.phone ?? '')
   const restaurantEmail = String(contact?.email ?? '')
+  const restaurantAddress = [
+    String(contact?.street ?? ''),
+    [String(contact?.zip ?? ''), String(contact?.city ?? '')].filter((s) => s.trim()).join(' '),
+  ]
+    .filter((s) => s.trim())
+    .join(', ')
   const cancelToken = String(created.cancelToken ?? '')
 
   try {
@@ -216,6 +222,7 @@ export async function POST(req: Request): Promise<NextResponse> {
         restaurantName,
         restaurantPhone,
         restaurantEmail,
+        restaurantAddress,
         cancelToken,
       }),
       replyTo: restaurantEmail || undefined,

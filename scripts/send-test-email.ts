@@ -26,6 +26,7 @@ async function main() {
       restaurantName: 'Parpali',
       restaurantPhone: '+49 2242 123456',
       restaurantEmail: 'reservierung@parpali-hennef.de',
+      restaurantAddress: 'Marktpl. 5, 53773 Hennef (Sieg)',
       cancelToken: 'demo-token',
     }),
     replyTo: 'reservierung@parpali-hennef.de',

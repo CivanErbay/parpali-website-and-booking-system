@@ -147,10 +147,25 @@ function emailLayout(opts: {
 </body></html>`
 }
 
-const footerContact = (name: string, phone: string, email: string): string =>
-  `<strong style="color:${C.fg2};">${escapeHtml(name)}</strong>` +
-  (phone ? ` · <a href="tel:${escapeHtml(phone)}" style="color:${C.accent};text-decoration:none;">${escapeHtml(phone)}</a>` : '') +
-  (email ? ` · <a href="mailto:${escapeHtml(email)}" style="color:${C.accent};text-decoration:none;">${escapeHtml(email)}</a>` : '')
+/** Footer: restaurant name, postal address, phone · email, website link.
+ * The website is taken from NEXT_PUBLIC_SITE_URL so every mail links home. */
+const footerBlock = (args: { lead?: string; name: string; address?: string; phone?: string; email?: string }): string => {
+  const site = (process.env.NEXT_PUBLIC_SITE_URL ?? '').replace(/\/$/, '')
+  const siteLabel = site.replace(/^https?:\/\//, '')
+  const contactBits = [
+    args.phone ? `<a href="tel:${escapeHtml(args.phone)}" style="color:${C.accent};text-decoration:none;">${escapeHtml(args.phone)}</a>` : '',
+    args.email ? `<a href="mailto:${escapeHtml(args.email)}" style="color:${C.accent};text-decoration:none;">${escapeHtml(args.email)}</a>` : '',
+  ].filter(Boolean)
+  return [
+    args.lead ? escapeHtml(args.lead) : '',
+    `<strong style="color:${C.fg2};">${escapeHtml(args.name)}</strong>`,
+    args.address ? escapeHtml(args.address) : '',
+    contactBits.join(' · '),
+    site ? `<a href="${escapeHtml(site)}" style="color:${C.accent};text-decoration:none;">${escapeHtml(siteLabel)}</a>` : '',
+  ]
+    .filter(Boolean)
+    .join('<br>')
+}
 
 const SOURCE_LABELS: Record<string, string> = { web: 'Online', phone: 'Telefon', walkin: 'Walk-in' }
 
@@ -165,9 +180,10 @@ export function reservationConfirmationHtml(args: {
   restaurantName: string
   restaurantPhone: string
   restaurantEmail: string
+  restaurantAddress?: string
   cancelToken?: string
 }): string {
-  const { name, date, time, partySize, notes, restaurantName, restaurantPhone, restaurantEmail, cancelToken } = args
+  const { name, date, time, partySize, notes, restaurantName, restaurantPhone, restaurantEmail, restaurantAddress, cancelToken } = args
   const cancel = cancelToken ? cancelUrl(cancelToken) : ''
   const rows: Row[] = [
     { label: 'Datum', value: escapeHtml(date) },
@@ -182,9 +198,13 @@ export function reservationConfirmationHtml(args: {
       <p style="margin:0;">vielen Dank für deine Reservierung im <strong style="color:${C.fg};">${escapeHtml(restaurantName)}</strong>. Wir freuen uns auf deinen Besuch.</p>`,
     rows,
     cta: cancel ? { url: cancel, label: 'Reservierung stornieren' } : undefined,
-    footerHtml:
-      `Falls du dich verspätest oder nicht kommen kannst, sag uns bitte kurz Bescheid:<br>` +
-      footerContact(restaurantName, restaurantPhone, restaurantEmail),
+    footerHtml: footerBlock({
+      lead: 'Falls du dich verspätest oder nicht kommen kannst, sag uns bitte kurz Bescheid:',
+      name: restaurantName,
+      address: restaurantAddress,
+      phone: restaurantPhone,
+      email: restaurantEmail,
+    }),
   })
 }
 
@@ -228,9 +248,10 @@ export function reservationReminderHtml(args: {
   partySize: number
   restaurantName: string
   restaurantPhone: string
+  restaurantAddress?: string
   cancelToken?: string
 }): string {
-  const { name, date, time, partySize, restaurantName, restaurantPhone, cancelToken } = args
+  const { name, date, time, partySize, restaurantName, restaurantPhone, restaurantAddress, cancelToken } = args
   const cancel = cancelToken ? cancelUrl(cancelToken) : ''
   return emailLayout({
     eyebrow: 'Erinnerung',
@@ -243,7 +264,12 @@ export function reservationReminderHtml(args: {
       { label: 'Personen', value: String(partySize) },
     ],
     cta: cancel ? { url: cancel, label: 'Reservierung stornieren' } : undefined,
-    footerHtml: `Falls sich etwas ändert, ruf uns kurz an: ` + footerContact(restaurantName, restaurantPhone, ''),
+    footerHtml: footerBlock({
+      lead: 'Falls sich etwas ändert, ruf uns kurz an:',
+      name: restaurantName,
+      address: restaurantAddress,
+      phone: restaurantPhone,
+    }),
   })
 }
 
@@ -252,14 +278,23 @@ export function reservationCancelledHtml(args: {
   date: string
   time: string
   restaurantName: string
+  restaurantPhone?: string
+  restaurantEmail?: string
+  restaurantAddress?: string
 }): string {
-  const { name, date, time, restaurantName } = args
+  const { name, date, time, restaurantName, restaurantPhone, restaurantEmail, restaurantAddress } = args
   return emailLayout({
     eyebrow: 'Reservierung',
     heading: 'Reservierung storniert',
     introHtml: `<p style="margin:0 0 14px;">Liebe/r ${escapeHtml(name)},</p>
       <p style="margin:0 0 14px;">deine Reservierung im <strong style="color:${C.fg};">${escapeHtml(restaurantName)}</strong> am <strong style="color:${C.fg};">${escapeHtml(date)}</strong> um <strong style="color:${C.fg};">${escapeHtml(time)}</strong> wurde storniert.</p>
       <p style="margin:0;">Wir würden uns freuen, dich ein andermal begrüßen zu dürfen.</p>`,
+    footerHtml: footerBlock({
+      name: restaurantName,
+      address: restaurantAddress,
+      phone: restaurantPhone,
+      email: restaurantEmail,
+    }),
   })
 }
 

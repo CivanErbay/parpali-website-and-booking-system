@@ -30,6 +30,12 @@ export async function GET(req: Request): Promise<NextResponse> {
   const contact = await payload.findGlobal({ slug: 'contact-info' })
   const restaurantName = String(contact?.restaurantName ?? 'Parpali')
   const restaurantPhone = String(contact?.phone ?? '')
+  const restaurantAddress = [
+    String(contact?.street ?? ''),
+    [String(contact?.zip ?? ''), String(contact?.city ?? '')].filter((s) => s.trim()).join(' '),
+  ]
+    .filter((s) => s.trim())
+    .join(', ')
 
   const resp = await payload.find({
     collection: 'reservations',
@@ -59,6 +65,7 @@ export async function GET(req: Request): Promise<NextResponse> {
           partySize: Number(r.partySize),
           restaurantName,
           restaurantPhone,
+          restaurantAddress,
           cancelToken: r.cancelToken ? String(r.cancelToken) : undefined,
         }),
         replyTo: String(contact?.email ?? '') || undefined,
