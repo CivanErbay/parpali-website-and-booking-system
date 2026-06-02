@@ -20,6 +20,27 @@ interface SendArgs {
 
 const SENDER = process.env.RESEND_FROM_EMAIL ?? 'Parpali <reservierung@parpali-hennef.de>'
 
+/** Derive a plain-text alternative from the HTML so every mail is multipart
+ * (text + html) — HTML-only mails are a common spam signal. */
+function htmlToText(html: string): string {
+  return html
+    .replace(/<head[\s\S]*?<\/head>/gi, '')
+    .replace(/<style[\s\S]*?<\/style>/gi, '')
+    .replace(/<\/(p|div|tr|h1|h2|h3|table|li)>/gi, '\n')
+    .replace(/<br\s*\/?>/gi, '\n')
+    .replace(/<[^>]+>/g, '')
+    .replace(/&nbsp;/g, ' ')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>')
+    .replace(/&quot;/g, '"')
+    .replace(/&#39;/g, "'")
+    .replace(/[ \t]+/g, ' ')
+    .replace(/\n[ \t]+/g, '\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+}
+
 export async function sendEmail({ to, subject, html, replyTo }: SendArgs): Promise<void> {
   const apiKey = process.env.RESEND_API_KEY
   if (!apiKey) {
@@ -28,7 +49,7 @@ export async function sendEmail({ to, subject, html, replyTo }: SendArgs): Promi
   }
   const { Resend } = await import('resend')
   const client = new Resend(apiKey)
-  const result = await client.emails.send({ from: SENDER, to, subject, html, replyTo })
+  const result = await client.emails.send({ from: SENDER, to, subject, html, text: htmlToText(html), replyTo })
   if (result.error) {
     throw new Error(`Resend send failed: ${result.error.message}`)
   }
