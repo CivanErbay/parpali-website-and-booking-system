@@ -16,7 +16,7 @@ async function main() {
   }
   await sendEmail({
     to,
-    subject: 'Reservierung bestätigt — Parpali · 12.06. 19:30',
+    subject: 'Reservierung bestätigt — Parpali · 12.06. um 19:30 Uhr',
     html: reservationConfirmationHtml({
       name: 'Maria Rossi',
       date: '2026-06-12',
@@ -29,7 +29,6 @@ async function main() {
       restaurantAddress: 'Marktpl. 5, 53773 Hennef (Sieg)',
       cancelToken: 'demo-token',
     }),
-    replyTo: 'reservierung@parpali-hennef.de',
   })
   console.log('gesendet an', to)
   process.exit(0)

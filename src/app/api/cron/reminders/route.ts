@@ -57,7 +57,7 @@ export async function GET(req: Request): Promise<NextResponse> {
     try {
       await sendEmail({
         to: String(r.email),
-        subject: `Erinnerung — ${restaurantName} heute um ${String(r.time)}`,
+        subject: `Erinnerung — ${restaurantName} · heute um ${String(r.time)} Uhr`,
         html: reservationReminderHtml({
           name: String(r.name),
           date: today,
@@ -68,7 +68,7 @@ export async function GET(req: Request): Promise<NextResponse> {
           restaurantAddress,
           cancelToken: r.cancelToken ? String(r.cancelToken) : undefined,
         }),
-        replyTo: String(contact?.email ?? '') || undefined,
+        // No freemail Reply-To (avoids FREEMAIL_FORGED_REPLYTO spam flag).
       })
       await payload.update({
         collection: 'reservations',

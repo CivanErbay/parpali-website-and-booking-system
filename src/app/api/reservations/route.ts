@@ -212,7 +212,7 @@ export async function POST(req: Request): Promise<NextResponse> {
   try {
     await sendEmail({
       to: data.email,
-      subject: `Reservierung bestätigt — ${restaurantName} · ${data.date} ${data.time}`,
+      subject: `Reservierung bestätigt — ${restaurantName} · ${data.date} um ${data.time} Uhr`,
       html: reservationConfirmationHtml({
         name: data.name,
         date: data.date,
@@ -225,7 +225,9 @@ export async function POST(req: Request): Promise<NextResponse> {
         restaurantAddress,
         cancelToken,
       }),
-      replyTo: restaurantEmail || undefined,
+      // No Reply-To: From is already the custom-domain address. A freemail
+      // Reply-To (the contact's web.de/gmail) triggers FREEMAIL_FORGED_REPLYTO
+      // in spam filters (+2.5). Guest replies go to reservierung@ (forward it).
     })
     if (restaurantEmail) {
       await sendEmail({
@@ -242,7 +244,8 @@ export async function POST(req: Request): Promise<NextResponse> {
           source: 'web',
           restaurantName,
         }),
-        replyTo: data.email,
+        // No freemail Reply-To (would spam-flag this notification too). The
+        // guest's e-mail is a tappable link in the body instead.
       })
     }
   } catch (err) {
