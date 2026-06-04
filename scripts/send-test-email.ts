@@ -2,7 +2,9 @@
  * Send a REAL booking-confirmation template (full HTML document) via Resend to
  * a recipient, to test deliverability/placement with a representative mail.
  *
- *   RESEND_API_KEY=… RESEND_FROM_EMAIL="Parpali <reservierung@parpali-hennef.de>" \
+ *   SMTP_HOST=mail.privateemail.com SMTP_PORT=465 \
+ *   SMTP_USER=reservierung@parpali-hennef.de SMTP_PASS=… \
+ *   SMTP_FROM="Parpali <reservierung@parpali-hennef.de>" \
  *   NEXT_PUBLIC_SITE_URL=https://parpali-hennef.de \
  *   pnpm exec tsx scripts/send-test-email.ts empfaenger@example.com
  */

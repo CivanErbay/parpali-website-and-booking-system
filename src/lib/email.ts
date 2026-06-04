@@ -1,7 +1,7 @@
 /**
- * Thin Resend wrapper + transactional e-mail templates for the booking flow.
- * Lazy-imports the SDK so the project still builds without it; in dev without
- * RESEND_API_KEY the send is a logged no-op.
+ * SMTP mailer (Namecheap Private Email) + transactional e-mail templates for
+ * the booking flow. Lazy-imports nodemailer; without SMTP config the send is a
+ * logged no-op (the booking still succeeds).
  *
  * EMAIL STYLING NOTE: e-mail clients support neither CSS custom properties nor
  * (reliably) web fonts, so the templates use inline styles with literal hex
@@ -18,7 +18,7 @@ interface SendArgs {
   replyTo?: string
 }
 
-const SENDER = process.env.RESEND_FROM_EMAIL ?? 'Parpali <reservierung@parpali-hennef.de>'
+const SENDER = process.env.SMTP_FROM ?? 'Parpali <reservierung@parpali-hennef.de>'
 
 /** Derive a plain-text alternative from the HTML so every mail is multipart
  * (text + html) — HTML-only mails are a common spam signal. */
@@ -42,16 +42,24 @@ function htmlToText(html: string): string {
 }
 
 export async function sendEmail({ to, subject, html, replyTo }: SendArgs): Promise<void> {
-  const apiKey = process.env.RESEND_API_KEY
-  if (!apiKey) {
-    console.warn('[email] RESEND_API_KEY not set — email skipped:', { to, subject })
+  const host = process.env.SMTP_HOST
+  const user = process.env.SMTP_USER
+  const pass = process.env.SMTP_PASS
+  if (!host || !user || !pass) {
+    console.warn('[email] SMTP not configured (SMTP_HOST/USER/PASS) — email skipped:', { to, subject })
     return
   }
-  const { Resend } = await import('resend')
-  const client = new Resend(apiKey)
+  const port = Number(process.env.SMTP_PORT ?? 465)
+  const nodemailer = await import('nodemailer')
+  const transporter = nodemailer.createTransport({
+    host,
+    port,
+    secure: port === 465, // 465 = implicit TLS; 587 = STARTTLS
+    auth: { user, pass },
+  })
   // List-Unsubscribe (mailto form) — improves treatment by some spam filters.
   const senderEmail = (SENDER.match(/<([^>]+)>/)?.[1] ?? SENDER).trim()
-  const result = await client.emails.send({
+  await transporter.sendMail({
     from: SENDER,
     to,
     subject,
@@ -60,9 +68,6 @@ export async function sendEmail({ to, subject, html, replyTo }: SendArgs): Promi
     replyTo,
     headers: { 'List-Unsubscribe': `<mailto:${senderEmail}?subject=Abmelden>` },
   })
-  if (result.error) {
-    throw new Error(`Resend send failed: ${result.error.message}`)
-  }
 }
 
 /** Public booking-cancel URL for a reservation token; '' when no site URL is configured. */

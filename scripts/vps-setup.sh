@@ -35,8 +35,11 @@ cat <<EOF
        S3_SECRET_ACCESS_KEY=...
        S3_ENDPOINT=https://hel1.your-objectstorage.com
        S3_REGION=hel1
-       RESEND_API_KEY=...
-       RESEND_FROM_EMAIL=Parpali <noreply@$DOMAIN>
+       SMTP_HOST=mail.privateemail.com
+       SMTP_PORT=465
+       SMTP_USER=reservierung@$DOMAIN
+       SMTP_PASS=...
+       SMTP_FROM=Parpali <reservierung@$DOMAIN>
        NEXT_PUBLIC_SITE_URL=https://$DOMAIN
 
   2. Point DNS A records for $DOMAIN and www.$DOMAIN at this VPS IP.
