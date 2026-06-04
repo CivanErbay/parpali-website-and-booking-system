@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import styles from './BookingForm.module.css'
 import { DatePicker } from './DatePicker'
 
@@ -44,6 +44,15 @@ export function BookingForm({ phone, maxPartyOnline = 8 }: BookingFormProps) {
   const [notes, setNotes] = useState('')
   const [submitting, setSubmitting] = useState(false)
   const [submitError, setSubmitError] = useState<string | null>(null)
+
+  const rootRef = useRef<HTMLDivElement>(null)
+  // Nach erfolgreicher Buchung sanft nach oben zur Bestätigung scrollen — das
+  // Formular ist je nach Schritt lang, der Nutzer ist sonst weit unten.
+  useEffect(() => {
+    if (step === 'confirmed') {
+      rootRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }, [step])
 
   useEffect(() => {
     setTime('')
@@ -109,7 +118,7 @@ export function BookingForm({ phone, maxPartyOnline = 8 }: BookingFormProps) {
 
   if (step === 'confirmed') {
     return (
-      <div className={styles.root} aria-live="polite">
+      <div className={styles.root} ref={rootRef} aria-live="polite">
         <h2 className={styles.title}>Reservierung bestätigt</h2>
         <p className={styles.body}>
           Vielen Dank, {name}. Wir haben deine Reservierung am <strong>{date}</strong> um{' '}

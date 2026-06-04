@@ -76,7 +76,8 @@ const OPENING_HOURS_DATA = {
       {
         label: 'Durchgehend',
         open: '11:30',
-        close: lastSeating === '22:00' ? '23:59' : '23:30',
+        // Geöffnet bis eine Stunde nach der letzten Reservierung (22:00 / 23:00).
+        close: lastSeating === '22:00' ? '23:00' : '22:00',
         lastSeating,
       },
     ],
