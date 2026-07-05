@@ -106,7 +106,6 @@ export async function POST(req: Request): Promise<NextResponse> {
   </table>
   <div style="background: #fbf7f1; border-left: 3px solid #a4161a; padding: 12px 16px; white-space: pre-wrap;">${escapeHtml(data.message)}</div>
 </body></html>`,
-        replyTo: data.email,
       })
     }
   } catch (err) {
