@@ -15,7 +15,7 @@ This file is the shared brain for everyone working in `parpali-website` — huma
 - **New collections** — `MenuItems`, `Reservations`, `Inquiries`, `Testimonials`, `Events` (`src/collections/`).
 - **New globals** — `OpeningHours`, `BookingSettings`, `ContactInfo` (`src/globals/`).
 - **Booking system** — pure slot logic in `src/lib/availability.ts`, API routes at `src/app/api/availability/route.ts` and `src/app/api/reservations/route.ts`, client form at `src/components/BookingForm/`.
-- **Email** — Resend wrapper in `src/lib/email.ts`. Without `RESEND_API_KEY` in env, sends are no-op'd and logged.
+- **Email** — SMTP via Namecheap Private Email (`src/lib/email.ts`). Without `SMTP_HOST`/`SMTP_USER`/`SMTP_PASS` in env, sends are no-op'd and logged.
 - **Localization enabled** in `payload.config.ts` (`de` default + `en`). Localized fields flagged on user-facing collections.
 - **Pages added** — `/menu` (server-rendered from MenuItems), `/reservierung` (BookingForm).
 - **Deployment** — `docker-compose.yml` and `.github/workflows/deploy.yml` repointed to `ghcr.io/cartel-design/parpali-website` and `parpali.de` (Traefik routing). `/srv/parpali-website` on the existing Hostinger VPS.
