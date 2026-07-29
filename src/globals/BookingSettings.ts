@@ -63,6 +63,27 @@ export const BookingSettings: GlobalConfig = {
       admin: { description: 'Wie viele kombinierbare Tische maximal für eine Gruppe zusammengestellt werden dürfen.' },
     },
     {
+      type: 'row',
+      fields: [
+        {
+          name: 'emergencyStop',
+          type: 'checkbox',
+          defaultValue: false,
+          admin: {
+            description: 'Notknopf: sofort ALLE Online-Reservierungen stoppen. Wird im Dashboard über den Notknopf-Button gesteuert, nicht hier direkt.',
+          },
+        },
+        {
+          name: 'emergencyStopMessage',
+          type: 'text',
+          admin: {
+            description: 'Hinweistext für Gäste, solange der Notknopf aktiv ist (leer = Standardtext).',
+            condition: (data) => Boolean(data?.emergencyStop),
+          },
+        },
+      ],
+    },
+    {
       name: 'blackoutDates',
       type: 'array',
       labels: { singular: 'Blackout-Tag', plural: 'Blackout-Tage' },

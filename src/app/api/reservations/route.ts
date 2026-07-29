@@ -86,6 +86,13 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   const policy = mapPolicy(settings)
 
+  if ((settings as { emergencyStop?: boolean } | null)?.emergencyStop) {
+    const message =
+      (settings as { emergencyStopMessage?: string } | null)?.emergencyStopMessage ||
+      'Wir nehmen aktuell leider keine Online-Reservierungen an. Bitte ruf uns an.'
+    return NextResponse.json({ error: message }, { status: 503 })
+  }
+
   if (data.partySize > policy.maxPartyOnline) {
     return NextResponse.json(
       { error: `Online-Buchungen für maximal ${policy.maxPartyOnline} Personen — größere Gruppen bitte telefonisch anfragen.` },

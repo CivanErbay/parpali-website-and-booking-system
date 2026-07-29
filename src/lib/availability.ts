@@ -286,6 +286,8 @@ export function getOpenSlots(args: {
   existing: ExistingReservation[]
   /** Requested stay length for this booking; defaults to policy.tableHoldMinutes. */
   stayMinutes?: number
+  /** Owner "Notknopf" — when true, the entire reservation service is halted. */
+  emergencyStop?: boolean
 }): OpenSlot[] {
   const {
     date,
@@ -300,6 +302,7 @@ export function getOpenSlots(args: {
   } = args
   const stayMinutes = args.stayMinutes ?? policy.tableHoldMinutes
 
+  if (args.emergencyStop) return []
   if (partySize < 1 || partySize > policy.maxPartyOnline) return []
 
   const targetDate = new Date(`${date}T00:00:00Z`)

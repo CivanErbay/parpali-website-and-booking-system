@@ -1,9 +1,11 @@
 'use client'
 
+import { useState } from 'react'
 import { usePathname, useRouter } from 'next/navigation'
 import Link from 'next/link'
 import styles from './ManageChrome.module.css'
 import { isoToday, weekStart } from '../../../lib/dashboard'
+import { EmergencyStopButton } from '../EmergencyStop/EmergencyStopButton'
 
 type IconName = 'day' | 'week' | 'list' | 'tables' | 'hours' | 'settings' | 'contact' | 'stats'
 
@@ -46,13 +48,16 @@ interface NavItem {
 
 export function ManageChrome({
   userEmail,
+  initialEmergencyStop,
   children,
 }: {
   userEmail: string
+  initialEmergencyStop: boolean
   children: React.ReactNode
 }) {
   const pathname = usePathname()
   const router = useRouter()
+  const [emergencyStop, setEmergencyStop] = useState(initialEmergencyStop)
 
   const today = isoToday()
   const items: NavItem[] = [
@@ -99,6 +104,7 @@ export function ManageChrome({
           })}
         </nav>
         <div className={styles.footer}>
+          <EmergencyStopButton active={emergencyStop} onChange={setEmergencyStop} />
           <span className={styles.user} title={userEmail}>
             {userEmail}
           </span>
@@ -107,7 +113,14 @@ export function ManageChrome({
           </button>
         </div>
       </aside>
-      <main className={styles.main}>{children}</main>
+      <main className={styles.main}>
+        {emergencyStop ? (
+          <div className={styles.emergencyBanner} role="alert">
+            ⚠ Reservierungsservice ist gestoppt — Gäste können aktuell nicht online buchen.
+          </div>
+        ) : null}
+        {children}
+      </main>
     </div>
   )
 }

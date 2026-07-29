@@ -8,6 +8,8 @@ interface SlotResponse {
   slots?: { time: string }[]
   policy?: { maxPartyOnline?: number; tableHoldMinutes?: number; maxStayMinutes?: number }
   error?: string
+  emergencyStop?: boolean
+  emergencyStopMessage?: string
 }
 
 /** "120" → "2 Std.", "150" → "2,5 Std." */
@@ -48,6 +50,8 @@ export function BookingForm({ phone, maxPartyOnline = 8 }: BookingFormProps) {
   const [maxStay, setMaxStay] = useState<number>(300)
   const [stayMinutes, setStayMinutes] = useState<number>(120)
   const [stayOpen, setStayOpen] = useState(false)
+  const [emergencyStop, setEmergencyStop] = useState(false)
+  const [emergencyStopMessage, setEmergencyStopMessage] = useState<string | undefined>()
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -79,6 +83,8 @@ export function BookingForm({ phone, maxPartyOnline = 8 }: BookingFormProps) {
     })
       .then(async (r) => (await r.json()) as SlotResponse)
       .then((data) => {
+        setEmergencyStop(Boolean(data.emergencyStop))
+        setEmergencyStopMessage(data.emergencyStopMessage)
         if (data.policy?.tableHoldMinutes) {
           setDefaultStay(data.policy.tableHoldMinutes)
           setStayMinutes((prev) => (prev < data.policy!.tableHoldMinutes! ? data.policy!.tableHoldMinutes! : prev))
@@ -148,6 +154,23 @@ export function BookingForm({ phone, maxPartyOnline = 8 }: BookingFormProps) {
           Falls du dich verspätest oder absagen musst, ruf uns kurz an
           {phone ? <> · <a className={styles.linkInline} href={`tel:${phone}`}>{phone}</a></> : null}.
         </p>
+      </div>
+    )
+  }
+
+  if (emergencyStop) {
+    return (
+      <div className={styles.root} ref={rootRef} aria-live="polite">
+        <h2 className={styles.title}>Online-Reservierung derzeit nicht möglich</h2>
+        <p className={styles.body}>
+          {emergencyStopMessage ??
+            'Wir nehmen aktuell leider keine Online-Reservierungen an. Bitte ruf uns an.'}
+        </p>
+        {phone ? (
+          <p className={styles.bodyMuted}>
+            <a className={styles.linkInline} href={`tel:${phone}`}>{phone}</a>
+          </p>
+        ) : null}
       </div>
     )
   }

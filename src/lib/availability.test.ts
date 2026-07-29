@@ -191,6 +191,10 @@ describe('getOpenSlots', () => {
     expect(getOpenSlots({ ...base, partySize: 2, openingRules: [] })).toEqual([])
   })
 
+  it('returns an empty list when the emergency stop is active', () => {
+    expect(getOpenSlots({ ...base, partySize: 2, emergencyStop: true })).toEqual([])
+  })
+
   it('returns an empty list on a blackout date', () => {
     expect(getOpenSlots({ ...base, partySize: 2, blackoutDates: [{ date: MON }] })).toEqual([])
   })
