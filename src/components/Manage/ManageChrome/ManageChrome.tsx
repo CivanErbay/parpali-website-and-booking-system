@@ -5,7 +5,7 @@ import Link from 'next/link'
 import styles from './ManageChrome.module.css'
 import { isoToday, weekStart } from '../../../lib/dashboard'
 
-type IconName = 'day' | 'week' | 'list' | 'tables' | 'hours' | 'settings' | 'contact'
+type IconName = 'day' | 'week' | 'list' | 'tables' | 'hours' | 'settings' | 'contact' | 'stats'
 
 /** Lucide-style 24×24 stroke icons — single source so stroke width stays consistent. */
 const ICONS: Record<IconName, React.ReactNode> = {
@@ -16,6 +16,7 @@ const ICONS: Record<IconName, React.ReactNode> = {
   hours: <><circle cx="12" cy="12" r="9" /><path d="M12 7v5l3 3" /></>,
   settings: <><path d="M4 6h16M4 12h16M4 18h16" /><circle cx="9" cy="6" r="2" /><circle cx="15" cy="12" r="2" /><circle cx="8" cy="18" r="2" /></>,
   contact: <><rect x="3" y="5" width="18" height="14" rx="2" /><path d="m3 7 9 6 9-6" /></>,
+  stats: <><path d="M4 20V10M12 20V4M20 20v-7" /></>,
 }
 
 function NavIcon({ name }: { name: IconName }) {
@@ -58,6 +59,7 @@ export function ManageChrome({
     { label: 'Tag', href: `/manage/day/${today}`, icon: 'day', match: '/manage/day' },
     { label: 'Woche', href: `/manage/week/${weekStart(today)}`, icon: 'week', match: '/manage/week' },
     { label: 'Reservierungen', href: '/manage/reservations', icon: 'list', match: '/manage/reservations' },
+    { label: 'Statistiken', href: '/manage/statistiken', icon: 'stats', match: '/manage/statistiken' },
     { label: 'Tische', href: '/manage/tables', icon: 'tables', match: '/manage/tables' },
     { label: 'Öffnungszeiten', href: '/manage/hours', icon: 'hours', match: '/manage/hours' },
     { label: 'Einstellungen', href: '/manage/settings', icon: 'settings', match: '/manage/settings' },

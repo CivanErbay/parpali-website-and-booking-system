@@ -14,6 +14,7 @@ import type {
   ExistingReservation,
 } from './availability'
 import type { ManageReservation, DayGridTable } from './dashboard'
+import type { GuestReservation } from './guestStats'
 
 type Rec = Record<string, unknown>
 
@@ -117,6 +118,23 @@ export function mapDashboardTables(docs: unknown[]): DayGridTable[] {
       capacity: Number(t.capacity ?? 0),
       zone: String(t.zone ?? 'main'),
       sortOrder: Number(t.sortOrder ?? 0),
+    }
+  })
+}
+
+/** Flat reservation shape for guest-frequency stats (src/lib/guestStats.ts). */
+export function mapGuestReservations(docs: unknown[]): GuestReservation[] {
+  return docs.map((d) => {
+    const r = rec(d)
+    return {
+      id: relId(r.id),
+      date: String(r.date ?? '').slice(0, 10),
+      time: String(r.time ?? ''),
+      partySize: Number(r.partySize ?? 0),
+      name: String(r.name ?? ''),
+      email: String(r.email ?? ''),
+      phone: String(r.phone ?? ''),
+      status: String(r.status ?? 'pending'),
     }
   })
 }
