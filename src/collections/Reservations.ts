@@ -31,6 +31,14 @@ export const Reservations: CollectionConfig = {
         { name: 'date', type: 'date', required: true, admin: { date: { pickerAppearance: 'dayOnly', displayFormat: 'dd.MM.yyyy' } } },
         { name: 'time', type: 'text', required: true, admin: { description: 'Format HH:mm (24h).' } },
         { name: 'partySize', type: 'number', required: true, min: 1, max: 30 },
+        {
+          name: 'durationMinutes',
+          type: 'number',
+          defaultValue: 120,
+          min: 60,
+          max: 480,
+          admin: { description: 'Gewählte Aufenthaltsdauer in Minuten (Standard 120 = 2 Std.).' },
+        },
       ],
     },
     {

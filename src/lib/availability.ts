@@ -54,12 +54,14 @@ export interface ExistingReservation {
   partySize: number
   status: string // any non-cancelled / non-no-show counts toward occupancy
   tableIds: string[] // tables this reservation holds; [] if unassigned (legacy)
+  durationMinutes?: number // hold length for this reservation; falls back to policy.tableHoldMinutes
 }
 
 export interface BookingPolicy {
   slotMinutes: number
   maxSeatsPerSlot: number // soft per-slot throughput ceiling (kitchen pacing)
-  tableHoldMinutes: number
+  tableHoldMinutes: number // minimum & default stay duration
+  maxStayMinutes: number // cap for guest-selected longer stays
   maxPartyOnline: number
   minLeadTimeHours: number
   advanceWindowDays: number
@@ -215,23 +217,29 @@ export function pickBestFit(options: TableOption[]): TableOption | null {
 }
 
 /**
- * Table ids occupied by any non-cancelled reservation whose 2.5h hold window
+ * Table ids occupied by any non-cancelled reservation whose hold window
  * overlaps the candidate block starting at `blockStartMin` (minutes from
- * midnight) on `date`.
+ * midnight) on `date`. Each existing reservation uses its own
+ * `durationMinutes` (falling back to `policy.tableHoldMinutes` for legacy
+ * docs); the candidate block uses `candidateDurationMinutes` (defaults to
+ * `policy.tableHoldMinutes`, i.e. the same fixed-length check as before this
+ * reservation could pick its own stay length).
  */
 export function occupiedTableIds(args: {
   date: string
   blockStartMin: number
   policy: BookingPolicy
   existing: ExistingReservation[]
+  candidateDurationMinutes?: number
 }): Set<string> {
   const { date, blockStartMin, policy, existing } = args
-  const hold = policy.tableHoldMinutes
+  const candidateHold = args.candidateDurationMinutes ?? policy.tableHoldMinutes
   const occupied = new Set<string>()
   for (const r of existing) {
     if (r.date !== date || !ACTIVE_STATUSES(r.status)) continue
     const rt = toMinutes(r.time)
-    if (rt + hold > blockStartMin && rt < blockStartMin + hold) {
+    const existingHold = r.durationMinutes ?? policy.tableHoldMinutes
+    if (rt + existingHold > blockStartMin && rt < blockStartMin + candidateHold) {
       for (const id of r.tableIds) occupied.add(id)
     }
   }
@@ -244,14 +252,16 @@ function seatsTakenInBlock(args: {
   blockStartMin: number
   policy: BookingPolicy
   existing: ExistingReservation[]
+  candidateDurationMinutes?: number
 }): number {
   const { date, blockStartMin, policy, existing } = args
-  const hold = policy.tableHoldMinutes
+  const candidateHold = args.candidateDurationMinutes ?? policy.tableHoldMinutes
   return existing
     .filter((r) => r.date === date && ACTIVE_STATUSES(r.status))
     .filter((r) => {
       const rt = toMinutes(r.time)
-      return rt + hold > blockStartMin && rt < blockStartMin + hold
+      const existingHold = r.durationMinutes ?? policy.tableHoldMinutes
+      return rt + existingHold > blockStartMin && rt < blockStartMin + candidateHold
     })
     .reduce((sum, r) => sum + r.partySize, 0)
 }
@@ -274,6 +284,8 @@ export function getOpenSlots(args: {
   partySize: number
   tables: TableInfo[]
   existing: ExistingReservation[]
+  /** Requested stay length for this booking; defaults to policy.tableHoldMinutes. */
+  stayMinutes?: number
 }): OpenSlot[] {
   const {
     date,
@@ -286,6 +298,7 @@ export function getOpenSlots(args: {
     tables,
     existing,
   } = args
+  const stayMinutes = args.stayMinutes ?? policy.tableHoldMinutes
 
   if (partySize < 1 || partySize > policy.maxPartyOnline) return []
 
@@ -347,12 +360,31 @@ export function getOpenSlots(args: {
         if (t < leadMinFromMidnight) continue
       }
 
+      // Guests choosing a longer-than-default stay can't book so late that it
+      // would run past closing — evening slots naturally offer less (or none)
+      // of the extended range. Default-length requests are unaffected (this
+      // only tightens the window; `lastStart` above already guarantees the
+      // default stay fits).
+      if (stayMinutes > policy.tableHoldMinutes && t + stayMinutes > end) continue
+
       // Soft kitchen-throughput ceiling
-      const taken = seatsTakenInBlock({ date, blockStartMin: t, policy, existing })
+      const taken = seatsTakenInBlock({
+        date,
+        blockStartMin: t,
+        policy,
+        existing,
+        candidateDurationMinutes: stayMinutes,
+      })
       if (taken + partySize > policy.maxSeatsPerSlot) continue
 
       // Per-table availability
-      const occupied = occupiedTableIds({ date, blockStartMin: t, policy, existing })
+      const occupied = occupiedTableIds({
+        date,
+        blockStartMin: t,
+        policy,
+        existing,
+        candidateDurationMinutes: stayMinutes,
+      })
       const freeTables = activeTables.filter((tbl) => !occupied.has(tbl.id))
       const options = enumerateTableOptions({
         tables: freeTables,
@@ -382,19 +414,34 @@ export function assignTableForBooking(args: {
   policy: BookingPolicy
   tables: TableInfo[]
   existing: ExistingReservation[]
+  /** Stay length of the booking being assigned; defaults to policy.tableHoldMinutes. */
+  stayMinutes?: number
 }):
   | { ok: true; option: TableOption }
   | { ok: false; reason: 'no-fit' | 'over-ceiling' } {
   const { date, time, partySize, policy, tables, existing } = args
+  const stayMinutes = args.stayMinutes ?? policy.tableHoldMinutes
 
   const blockStartMin = toMinutes(time)
 
-  const taken = seatsTakenInBlock({ date, blockStartMin, policy, existing })
+  const taken = seatsTakenInBlock({
+    date,
+    blockStartMin,
+    policy,
+    existing,
+    candidateDurationMinutes: stayMinutes,
+  })
   if (taken + partySize > policy.maxSeatsPerSlot) {
     return { ok: false, reason: 'over-ceiling' }
   }
 
-  const occupied = occupiedTableIds({ date, blockStartMin, policy, existing })
+  const occupied = occupiedTableIds({
+    date,
+    blockStartMin,
+    policy,
+    existing,
+    candidateDurationMinutes: stayMinutes,
+  })
   const freeTables = tables.filter((t) => t.active && !occupied.has(t.id))
   const options = enumerateTableOptions({
     tables: freeTables,

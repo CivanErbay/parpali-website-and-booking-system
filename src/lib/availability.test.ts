@@ -26,6 +26,7 @@ const policy = (over: Partial<BookingPolicy> = {}): BookingPolicy => ({
   slotMinutes: 30,
   maxSeatsPerSlot: 200,
   tableHoldMinutes: 150,
+  maxStayMinutes: 300,
   maxPartyOnline: 12,
   minLeadTimeHours: 2,
   advanceWindowDays: 60,
@@ -144,6 +145,26 @@ describe('occupiedTableIds', () => {
     const occ = occupiedTableIds({ date: MON, blockStartMin: 18 * 60, policy: policy(), existing })
     expect(occ.size).toBe(0)
   })
+
+  it('uses a reservation own durationMinutes instead of the policy default', () => {
+    // 18:00 + 90min hold ends 19:30 — a candidate block at 19:30 no longer overlaps
+    const existing = [res({ time: '18:00', tableIds: ['T3'], durationMinutes: 90 })]
+    const occ = occupiedTableIds({ date: MON, blockStartMin: 19 * 60 + 30, policy: policy(), existing })
+    expect(occ.size).toBe(0)
+  })
+
+  it('a long candidate stay can still collide with an earlier short reservation', () => {
+    // existing 17:00 + 60min ends 18:00; candidate at 17:45 with any duration still overlaps
+    const existing = [res({ time: '17:00', tableIds: ['T3'], durationMinutes: 60 })]
+    const occ = occupiedTableIds({
+      date: MON,
+      blockStartMin: 17 * 60 + 45,
+      policy: policy(),
+      existing,
+      candidateDurationMinutes: 300,
+    })
+    expect([...occ]).toEqual(['T3'])
+  })
 })
 
 // --- getOpenSlots ---------------------------------------------------------
@@ -260,6 +281,27 @@ describe('getOpenSlots', () => {
     ]
     const slots = getOpenSlots({ ...base, partySize: 2, holidayOverrides })
     expect(slots[slots.length - 1].time).toBe('20:00')
+  })
+
+  it('default-length requests are unaffected by the closing-time stay filter', () => {
+    // open 17:00-23:00; default hold (150min from the fixture policy) already
+    // fits everywhere up to the existing last-slot cap — behaviour unchanged.
+    const slots = getOpenSlots({ ...base, partySize: 2 })
+    expect(slots[slots.length - 1].time).toBe('20:30')
+  })
+
+  it('offers fewer late slots when a longer stay is requested (evening cutoff)', () => {
+    // open 17:00-23:00; a 5h (300min) stay only fits if start + 300 <= 23:00 (1380),
+    // i.e. start <= 18:00. Later starts drop out even though the default stay fits.
+    const slots = getOpenSlots({ ...base, partySize: 2, stayMinutes: 300 })
+    expect(slots.length).toBeGreaterThan(0)
+    expect(slots.every((s) => s.time <= '18:00')).toBe(true)
+    expect(slots.some((s) => s.time === '18:30')).toBe(false)
+  })
+
+  it('drops all slots when the requested stay never fits before closing', () => {
+    const slots = getOpenSlots({ ...base, partySize: 2, stayMinutes: 600 })
+    expect(slots).toEqual([])
   })
 })
 

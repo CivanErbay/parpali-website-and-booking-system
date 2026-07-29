@@ -6,8 +6,15 @@ import { DatePicker } from './DatePicker'
 
 interface SlotResponse {
   slots?: { time: string }[]
-  policy?: { maxPartyOnline?: number }
+  policy?: { maxPartyOnline?: number; tableHoldMinutes?: number; maxStayMinutes?: number }
   error?: string
+}
+
+/** "120" → "2 Std.", "150" → "2,5 Std." */
+const formatStay = (minutes: number): string => {
+  const hours = minutes / 60
+  const label = Number.isInteger(hours) ? String(hours) : hours.toFixed(1).replace('.', ',')
+  return `${label} Std.`
 }
 
 interface BookingFormProps {
@@ -37,6 +44,10 @@ export function BookingForm({ phone, maxPartyOnline = 8 }: BookingFormProps) {
   const [slots, setSlots] = useState<{ time: string }[]>([])
   const [loadingSlots, setLoadingSlots] = useState(false)
   const [slotsError, setSlotsError] = useState<string | null>(null)
+  const [defaultStay, setDefaultStay] = useState<number>(120)
+  const [maxStay, setMaxStay] = useState<number>(300)
+  const [stayMinutes, setStayMinutes] = useState<number>(120)
+  const [stayOpen, setStayOpen] = useState(false)
 
   const [name, setName] = useState('')
   const [email, setEmail] = useState('')
@@ -63,9 +74,16 @@ export function BookingForm({ phone, maxPartyOnline = 8 }: BookingFormProps) {
 
     const ctrl = new AbortController()
     setLoadingSlots(true)
-    fetch(`/api/availability?date=${date}&partySize=${partySize}`, { signal: ctrl.signal })
+    fetch(`/api/availability?date=${date}&partySize=${partySize}&stayMinutes=${stayMinutes}`, {
+      signal: ctrl.signal,
+    })
       .then(async (r) => (await r.json()) as SlotResponse)
       .then((data) => {
+        if (data.policy?.tableHoldMinutes) {
+          setDefaultStay(data.policy.tableHoldMinutes)
+          setStayMinutes((prev) => (prev < data.policy!.tableHoldMinutes! ? data.policy!.tableHoldMinutes! : prev))
+        }
+        if (data.policy?.maxStayMinutes) setMaxStay(data.policy.maxStayMinutes)
         if (data.error) {
           setSlotsError(data.error)
           setSlots([])
@@ -80,7 +98,7 @@ export function BookingForm({ phone, maxPartyOnline = 8 }: BookingFormProps) {
       .finally(() => setLoadingSlots(false))
 
     return () => ctrl.abort()
-  }, [date, partySize, maxPartyOnline])
+  }, [date, partySize, maxPartyOnline, stayMinutes])
 
   const groupTooLarge = partySize > maxPartyOnline
 
@@ -100,6 +118,7 @@ export function BookingForm({ phone, maxPartyOnline = 8 }: BookingFormProps) {
           email,
           phone: phoneInput,
           notes: notes || undefined,
+          durationMinutes: stayMinutes,
         }),
       })
       const data = (await res.json()) as { error?: string }
@@ -157,6 +176,35 @@ export function BookingForm({ phone, maxPartyOnline = 8 }: BookingFormProps) {
             </select>
           </label>
         </div>
+
+        {maxStay > defaultStay ? (
+          <details
+            className={styles.accordion}
+            open={stayOpen}
+            onToggle={(e) => setStayOpen(e.currentTarget.open)}
+          >
+            <summary className={styles.accordionSummary}>Sie wollen länger bleiben?</summary>
+            <div className={styles.accordionBody}>
+              <label className={styles.field}>
+                <span className={styles.label}>Aufenthaltsdauer</span>
+                <select
+                  value={stayMinutes}
+                  onChange={(e) => setStayMinutes(Number(e.target.value))}
+                  className={styles.input}
+                >
+                  {Array.from(
+                    { length: Math.floor((maxStay - defaultStay) / 30) + 1 },
+                    (_, i) => defaultStay + i * 30,
+                  ).map((m) => (
+                    <option key={m} value={m}>
+                      {formatStay(m)}
+                    </option>
+                  ))}
+                </select>
+              </label>
+            </div>
+          </details>
+        ) : null}
       </fieldset>
 
       {groupTooLarge ? (
@@ -172,7 +220,11 @@ export function BookingForm({ phone, maxPartyOnline = 8 }: BookingFormProps) {
           ) : slotsError ? (
             <p className={styles.error}>{slotsError}</p>
           ) : slots.length === 0 ? (
-            <p className={styles.muted}>Für diesen Tag und diese Gruppengröße sind aktuell keine Zeitslots verfügbar.</p>
+            <p className={styles.muted}>
+              {stayMinutes > defaultStay
+                ? `Für ${formatStay(stayMinutes)} sind an diesem Tag keine Zeitslots mehr verfügbar — versuch es mit einer kürzeren Aufenthaltsdauer.`
+                : 'Für diesen Tag und diese Gruppengröße sind aktuell keine Zeitslots verfügbar.'}
+            </p>
           ) : (
             <ul className={styles.slotGrid} role="radiogroup" aria-label="Verfügbare Zeitslots">
               {slots.map((s) => (

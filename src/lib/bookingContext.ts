@@ -34,7 +34,8 @@ export function mapPolicy(settings: unknown): BookingPolicy {
   return {
     slotMinutes: Number(s.slotMinutes ?? 15),
     maxSeatsPerSlot: Number(s.maxSeatsPerSlot ?? 200),
-    tableHoldMinutes: Number(s.tableHoldMinutes ?? 150),
+    tableHoldMinutes: Number(s.tableHoldMinutes ?? 120),
+    maxStayMinutes: Number(s.maxStayMinutes ?? 300),
     maxPartyOnline: Number(s.maxPartyOnline ?? 8),
     minLeadTimeHours: Number(s.minLeadTimeHours ?? 2),
     advanceWindowDays: Number(s.advanceWindowDays ?? 60),
@@ -101,6 +102,7 @@ export function mapReservations(docs: unknown[]): ExistingReservation[] {
       partySize: Number(r.partySize ?? 0),
       status: String(r.status ?? 'pending'),
       tableIds: relIds(r.assignedTables),
+      durationMinutes: r.durationMinutes != null ? Number(r.durationMinutes) : undefined,
     }
   })
 }
