@@ -30,9 +30,18 @@ export const BookingSettings: GlobalConfig = {
           name: 'tableHoldMinutes',
           type: 'number',
           required: true,
-          defaultValue: 150,
+          defaultValue: 120,
           min: 15,
-          admin: { description: 'Wie lange ein Tisch nach Beginn als belegt gilt (Standard 150 = 2,5 Std.).' },
+          admin: { description: 'Minimale & standardmäßige Aufenthaltsdauer in Minuten (Standard 120 = 2 Std.). Gäste können online bis zu "Maximale Aufenthaltsdauer" verlängern.' },
+        },
+        {
+          name: 'maxStayMinutes',
+          type: 'number',
+          required: true,
+          defaultValue: 300,
+          min: 120,
+          max: 480,
+          admin: { description: 'Maximale Aufenthaltsdauer in Minuten, wenn ein Gast online "länger bleiben" wählt (Standard 300 = 5 Std.). Abends automatisch eingeschränkt, wenn es vor Schließung nicht mehr passt.' },
         },
       ],
     },
@@ -52,6 +61,27 @@ export const BookingSettings: GlobalConfig = {
       min: 1,
       max: 6,
       admin: { description: 'Wie viele kombinierbare Tische maximal für eine Gruppe zusammengestellt werden dürfen.' },
+    },
+    {
+      type: 'row',
+      fields: [
+        {
+          name: 'emergencyStop',
+          type: 'checkbox',
+          defaultValue: false,
+          admin: {
+            description: 'Notknopf: sofort ALLE Online-Reservierungen stoppen. Wird im Dashboard über den Notknopf-Button gesteuert, nicht hier direkt.',
+          },
+        },
+        {
+          name: 'emergencyStopMessage',
+          type: 'text',
+          admin: {
+            description: 'Hinweistext für Gäste, solange der Notknopf aktiv ist (leer = Standardtext).',
+            condition: (data) => Boolean(data?.emergencyStop),
+          },
+        },
+      ],
     },
     {
       name: 'blackoutDates',

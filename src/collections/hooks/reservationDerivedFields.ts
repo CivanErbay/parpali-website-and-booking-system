@@ -28,10 +28,11 @@ export const reservationDerivedFields: CollectionBeforeChangeHook = async ({
       ? String(originalDoc.date).slice(0, 10)
       : null
   const time: unknown = data.time ?? originalDoc?.time
+  const duration: unknown = data.durationMinutes ?? originalDoc?.durationMinutes
 
   if (dateStr && typeof time === 'string' && TIME_RE.test(time)) {
     const settings = await req.payload.findGlobal({ slug: 'booking-settings' })
-    const holdMin = Number(settings?.tableHoldMinutes ?? 150)
+    const holdMin = Number(duration ?? settings?.tableHoldMinutes ?? 120)
     const start = new Date(`${dateStr}T${time}:00.000Z`)
     if (!Number.isNaN(start.getTime())) {
       data.holdUntil = new Date(start.getTime() + holdMin * 60_000).toISOString()

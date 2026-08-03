@@ -120,6 +120,16 @@
   padding: var(--s-6);
 }
 
+.emergencyBanner {
+  margin-bottom: var(--s-5);
+  padding: var(--s-4) var(--s-5);
+  font: var(--t-h5);
+  font-weight: 700;
+  color: var(--accent-fg);
+  background: var(--status-noshow);
+  border-radius: var(--r-3);
+}
+
 /* Tablet / mobile — sidebar becomes a top bar */
 @media (max-width: 60rem) {
   .root {

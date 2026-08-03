@@ -28,6 +28,7 @@ export async function GET(req: Request): Promise<NextResponse> {
   }
 
   const payload = await getPayload({ config })
+  const stayMinutesParam = url.searchParams.get('stayMinutes')
 
   const [settings, hours, tablesResp, existingResp] = await Promise.all([
     payload.findGlobal({ slug: 'booking-settings' }),
@@ -49,6 +50,10 @@ export async function GET(req: Request): Promise<NextResponse> {
   ])
 
   const policy = mapPolicy(settings)
+  const stayMinutes = stayMinutesParam
+    ? Math.min(Math.max(Number(stayMinutesParam) || policy.tableHoldMinutes, policy.tableHoldMinutes), policy.maxStayMinutes)
+    : policy.tableHoldMinutes
+  const emergencyStop = Boolean((settings as { emergencyStop?: boolean } | null)?.emergencyStop)
   const slots = getOpenSlots({
     date,
     now: new Date(),
@@ -59,12 +64,23 @@ export async function GET(req: Request): Promise<NextResponse> {
     partySize,
     tables: mapTables(tablesResp.docs),
     existing: mapReservations(existingResp.docs),
+    stayMinutes,
+    emergencyStop,
   })
 
   // Public response: only the bookable times are needed by the form. The
-  // internal best-fit assignment is not leaked to the client.
+  // internal best-fit assignment is not leaked to the client. emergencyStop is
+  // surfaced unconditionally so the form can show "we're closed entirely",
+  // not just "nothing free on this day".
   return NextResponse.json({
     slots: slots.map((s) => ({ time: s.time })),
-    policy: { maxPartyOnline: policy.maxPartyOnline, minLeadTimeHours: policy.minLeadTimeHours },
+    policy: {
+      maxPartyOnline: policy.maxPartyOnline,
+      minLeadTimeHours: policy.minLeadTimeHours,
+      tableHoldMinutes: policy.tableHoldMinutes,
+      maxStayMinutes: policy.maxStayMinutes,
+    },
+    emergencyStop,
+    emergencyStopMessage: (settings as { emergencyStopMessage?: string } | null)?.emergencyStopMessage || undefined,
   })
 }

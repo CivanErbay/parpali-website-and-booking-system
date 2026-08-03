@@ -30,6 +30,7 @@ interface ReservationPayload {
   email: string
   phone: string
   notes?: string
+  durationMinutes?: number
 }
 
 function validate(body: unknown): { ok: true; data: ReservationPayload } | { ok: false; error: string } {
@@ -43,6 +44,10 @@ function validate(body: unknown): { ok: true; data: ReservationPayload } | { ok:
   if (typeof b.email !== 'string' || !EMAIL_RE.test(b.email)) return { ok: false, error: 'Bitte gib eine gültige E-Mail-Adresse an.' }
   // Telefon ist optional.
   const phone = typeof b.phone === 'string' ? b.phone.trim() : ''
+  const durationMinutes = b.durationMinutes != null ? Number(b.durationMinutes) : undefined
+  if (durationMinutes != null && (!Number.isFinite(durationMinutes) || durationMinutes < 1)) {
+    return { ok: false, error: 'Ungültige Aufenthaltsdauer.' }
+  }
   return {
     ok: true,
     data: {
@@ -53,6 +58,7 @@ function validate(body: unknown): { ok: true; data: ReservationPayload } | { ok:
       email: b.email.trim(),
       phone,
       notes: typeof b.notes === 'string' ? b.notes.trim() : undefined,
+      durationMinutes,
     },
   }
 }
@@ -80,6 +86,13 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   const policy = mapPolicy(settings)
 
+  if ((settings as { emergencyStop?: boolean } | null)?.emergencyStop) {
+    const message =
+      (settings as { emergencyStopMessage?: string } | null)?.emergencyStopMessage ||
+      'Wir nehmen aktuell leider keine Online-Reservierungen an. Bitte ruf uns an.'
+    return NextResponse.json({ error: message }, { status: 503 })
+  }
+
   if (data.partySize > policy.maxPartyOnline) {
     return NextResponse.json(
       { error: `Online-Buchungen für maximal ${policy.maxPartyOnline} Personen — größere Gruppen bitte telefonisch anfragen.` },
@@ -89,6 +102,10 @@ export async function POST(req: Request): Promise<NextResponse> {
 
   const tables = mapTables(tablesResp.docs)
   const existing = mapReservations(existingResp.docs)
+
+  const stayMinutes = data.durationMinutes
+    ? Math.min(Math.max(data.durationMinutes, policy.tableHoldMinutes), policy.maxStayMinutes)
+    : policy.tableHoldMinutes
 
   const openSlots = getOpenSlots({
     date: data.date,
@@ -100,6 +117,7 @@ export async function POST(req: Request): Promise<NextResponse> {
     partySize: data.partySize,
     tables,
     existing,
+    stayMinutes,
   })
 
   if (!openSlots.find((s) => s.time === data.time)) {
@@ -113,6 +131,7 @@ export async function POST(req: Request): Promise<NextResponse> {
     policy,
     tables,
     existing,
+    stayMinutes,
   })
   if (!assignment.ok) {
     return NextResponse.json(
@@ -133,6 +152,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       email: data.email,
       phone: data.phone,
       notes: data.notes,
+      durationMinutes: stayMinutes,
       assignedTables: assignment.option.tableIds,
       assignmentMode: 'auto',
       status: 'pending',
@@ -163,6 +183,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       blockStartMin: toBlockMinutes(data.time),
       policy,
       existing: prior,
+      candidateDurationMinutes: stayMinutes,
     })
     if (assignedTableIds.some((id) => occ.has(id))) {
       const reassign = assignTableForBooking({
@@ -172,6 +193,7 @@ export async function POST(req: Request): Promise<NextResponse> {
         policy,
         tables,
         existing: prior,
+        stayMinutes,
       })
       if (reassign.ok) {
         assignedTableIds = reassign.option.tableIds

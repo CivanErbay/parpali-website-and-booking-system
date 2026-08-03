@@ -181,3 +181,25 @@
   text-decoration: underline;
   text-underline-offset: 0.2em;
 }
+
+.accordion {
+  border: 1px solid var(--section-border);
+  border-radius: var(--r-2);
+  padding: var(--s-3) var(--s-4);
+}
+
+.accordionSummary {
+  font: var(--t-body-sm);
+  font-weight: 600;
+  color: var(--section-accent);
+  cursor: pointer;
+  list-style: none;
+}
+
+.accordionSummary::-webkit-details-marker {
+  display: none;
+}
+
+.accordionBody {
+  margin-top: var(--s-4);
+}

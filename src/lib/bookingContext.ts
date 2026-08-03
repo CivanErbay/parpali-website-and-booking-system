@@ -14,6 +14,7 @@ import type {
   ExistingReservation,
 } from './availability'
 import type { ManageReservation, DayGridTable } from './dashboard'
+import type { GuestReservation } from './guestStats'
 
 type Rec = Record<string, unknown>
 
@@ -34,7 +35,8 @@ export function mapPolicy(settings: unknown): BookingPolicy {
   return {
     slotMinutes: Number(s.slotMinutes ?? 15),
     maxSeatsPerSlot: Number(s.maxSeatsPerSlot ?? 200),
-    tableHoldMinutes: Number(s.tableHoldMinutes ?? 150),
+    tableHoldMinutes: Number(s.tableHoldMinutes ?? 120),
+    maxStayMinutes: Number(s.maxStayMinutes ?? 300),
     maxPartyOnline: Number(s.maxPartyOnline ?? 8),
     minLeadTimeHours: Number(s.minLeadTimeHours ?? 2),
     advanceWindowDays: Number(s.advanceWindowDays ?? 60),
@@ -101,6 +103,7 @@ export function mapReservations(docs: unknown[]): ExistingReservation[] {
       partySize: Number(r.partySize ?? 0),
       status: String(r.status ?? 'pending'),
       tableIds: relIds(r.assignedTables),
+      durationMinutes: r.durationMinutes != null ? Number(r.durationMinutes) : undefined,
     }
   })
 }
@@ -115,6 +118,23 @@ export function mapDashboardTables(docs: unknown[]): DayGridTable[] {
       capacity: Number(t.capacity ?? 0),
       zone: String(t.zone ?? 'main'),
       sortOrder: Number(t.sortOrder ?? 0),
+    }
+  })
+}
+
+/** Flat reservation shape for guest-frequency stats (src/lib/guestStats.ts). */
+export function mapGuestReservations(docs: unknown[]): GuestReservation[] {
+  return docs.map((d) => {
+    const r = rec(d)
+    return {
+      id: relId(r.id),
+      date: String(r.date ?? '').slice(0, 10),
+      time: String(r.time ?? ''),
+      partySize: Number(r.partySize ?? 0),
+      name: String(r.name ?? ''),
+      email: String(r.email ?? ''),
+      phone: String(r.phone ?? ''),
+      status: String(r.status ?? 'pending'),
     }
   })
 }
