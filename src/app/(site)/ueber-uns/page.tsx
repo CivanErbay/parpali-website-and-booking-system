@@ -59,8 +59,9 @@ function findBlock(layout: any[], blockType: string): any | undefined {
 export default async function UeberUnsPage() {
   const payload = await getPayload({ config })
   const pageResult = await payload.find({ collection: 'pages', where: { slug: { equals: 'ueber-uns' } }, limit: 1, depth: 2 })
+  const pageDoc = pageResult.docs[0]
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const layout: any[] = (pageResult.docs[0] as any)?.layout ?? []
+  const layout: any[] = (pageDoc as any)?.layout ?? []
 
   const heroB      = findBlock(layout, 'page-hero')
   const storyB     = findBlock(layout, 'story-text')
@@ -73,12 +74,14 @@ export default async function UeberUnsPage() {
   const storyParas: string[] = storyB?.paragraphs?.map((p: { text: string }) => p.text) ?? DEFAULT_STORY
 
   // Items: prefer `home-signature` block (new canonical), fall back to legacy
-  // `alternating-features`, and finally to defaults. Items without an image are skipped.
+  // `alternating-features`. Defaults only apply while no CMS page exists yet — once the
+  // page is maintained in the admin, a removed block means "hide the section".
+  // Items without an image are skipped.
   type ItemInput = { eyebrow?: string; title: string; body?: string; image?: { url?: string } }
   const customItems = (signatureB?.items ?? featuresB?.items ?? []) as ItemInput[]
   const filteredCustom = customItems.filter((it) => !!it.image?.url)
   const pillars: { eyebrow?: string; title: string; body?: string; img: string }[] =
-    filteredCustom.length > 0
+    pageDoc
       ? filteredCustom.map((it) => ({
           eyebrow: it.eyebrow,
           title: it.title,
