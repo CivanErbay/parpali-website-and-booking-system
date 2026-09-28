@@ -8,6 +8,7 @@ import { PullQuote } from '../../../components/PullQuote/PullQuote'
 import { AlternatingFeature } from '../../../components/AlternatingFeature/AlternatingFeature'
 import { FloatingReserveCta } from '../../../components/FloatingReserveCta/FloatingReserveCta'
 import { ParallaxImage } from '../../../components/ParallaxImage/ParallaxImage'
+import { StoryIntro } from '../../../components/StoryIntro/StoryIntro'
 import styles from './page.module.css'
 
 export const metadata = {
@@ -124,11 +125,7 @@ export default async function UeberUnsPage() {
           </div>
         </header>
 
-        <ScrollReveal as="article" className={styles.story}>
-          {storyParas.map((text, i) => (
-            <p key={i} className={i === 0 ? styles.lead : undefined}>{text}</p>
-          ))}
-        </ScrollReveal>
+        <StoryIntro eyebrow={storyB?.eyebrow ?? 'Wer wir sind'} paragraphs={storyParas} />
 
         <PullQuote
           quote={pullB?.quote ?? 'Eine Mahlzeit ist nie nur eine Mahlzeit — es ist ein Stück Zeit, geteilt.'}

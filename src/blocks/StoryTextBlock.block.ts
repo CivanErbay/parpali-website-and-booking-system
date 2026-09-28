@@ -4,6 +4,7 @@ export const StoryTextBlock: Block = {
   slug: 'story-text',
   labels: { singular: 'Story-Text', plural: 'Story-Texte' },
   fields: [
+    { name: 'eyebrow', type: 'text', label: 'Eyebrow (kleine Überzeile)' },
     {
       name: 'paragraphs',
       type: 'array',
