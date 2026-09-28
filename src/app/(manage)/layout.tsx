@@ -1,12 +1,20 @@
 export const dynamic = 'force-dynamic'
 
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import { fontVariables } from '../../shared/fonts'
 import '../globals.css'
 
 export const metadata: Metadata = {
   title: 'Parpali · Reservierungen',
   robots: { index: false, follow: false },
+  // Installierbar als App (PWA) — nur das Dashboard, siehe manifest.webmanifest/route.ts
+  manifest: '/manage/manifest.webmanifest',
+  appleWebApp: { capable: true, title: 'Parpali', statusBarStyle: 'default' },
+  icons: { apple: '/manage/apple-touch-icon.png', icon: '/manage/icon-192.png' },
+}
+
+export const viewport: Viewport = {
+  themeColor: '#f5f0e4',
 }
 
 /**
