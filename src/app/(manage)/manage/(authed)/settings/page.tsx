@@ -3,6 +3,7 @@ import config from '@payload-config'
 import styles from '../manage.module.css'
 import { SettingsForm, type SettingsValues } from '@/components/Manage/ConfigForms/SettingsForm'
 import { mapPolicy } from '@/lib/bookingContext'
+import { InstallApp } from '@/components/Manage/InstallApp/InstallApp'
 
 export const dynamic = 'force-dynamic'
 
@@ -42,6 +43,7 @@ export default async function SettingsPage() {
         </div>
       </header>
       <SettingsForm initial={initial} />
+      <InstallApp />
     </div>
   )
 }
