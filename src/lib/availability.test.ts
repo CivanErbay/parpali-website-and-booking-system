@@ -6,6 +6,7 @@ import {
   getOpenSlots,
   assignTableForBooking,
   type TableInfo,
+  type TableCombo,
   type BookingPolicy,
   type OpeningRule,
   type ExistingReservation,
@@ -13,13 +14,24 @@ import {
 
 // --- Fixtures -------------------------------------------------------------
 
-/** T1,T2 = 2-tops; T3,T4 = 4-tops; T5 = 6-top. Chain T1-T2-T3-T4 combinable. */
+/** T1,T2 = 2-tops; T3,T4 = 4-tops; T5 = 6-top. */
 const tables = (): TableInfo[] => [
-  { id: 'T1', label: 'T1', capacity: 2, combinable: true, combinesWith: ['T2'], active: true, sortOrder: 1 },
-  { id: 'T2', label: 'T2', capacity: 2, combinable: true, combinesWith: ['T1', 'T3'], active: true, sortOrder: 2 },
-  { id: 'T3', label: 'T3', capacity: 4, combinable: true, combinesWith: ['T2', 'T4'], active: true, sortOrder: 3 },
-  { id: 'T4', label: 'T4', capacity: 4, combinable: true, combinesWith: ['T3'], active: true, sortOrder: 4 },
-  { id: 'T5', label: 'T5', capacity: 6, combinable: false, combinesWith: [], active: true, sortOrder: 5 },
+  { id: 'T1', label: 'T1', capacity: 2, active: true, sortOrder: 1 },
+  { id: 'T2', label: 'T2', capacity: 2, active: true, sortOrder: 2 },
+  { id: 'T3', label: 'T3', capacity: 4, active: true, sortOrder: 3 },
+  { id: 'T4', label: 'T4', capacity: 4, active: true, sortOrder: 4 },
+  { id: 'T5', label: 'T5', capacity: 6, active: true, sortOrder: 5 },
+]
+
+/**
+ * Owner-style combinations (Parpali voice note 2026-10): seat counts are NOT the
+ * sum of the members — T1+T2 seat 4, T1+T3 seat 6, T1+T2+T3 seat 10–12.
+ */
+const combos = (): TableCombo[] => [
+  { tableIds: ['T1', 'T2'], maxParty: 4 },
+  { tableIds: ['T1', 'T3'], maxParty: 6 },
+  { tableIds: ['T1', 'T2', 'T3'], minParty: 10, maxParty: 12 },
+  { tableIds: ['T3', 'T4'], maxParty: 8 },
 ]
 
 const policy = (over: Partial<BookingPolicy> = {}): BookingPolicy => ({
@@ -30,7 +42,7 @@ const policy = (over: Partial<BookingPolicy> = {}): BookingPolicy => ({
   maxPartyOnline: 12,
   minLeadTimeHours: 2,
   advanceWindowDays: 60,
-  maxCombineTables: 3,
+  tableCombos: combos(),
   ...over,
 })
 
@@ -53,44 +65,53 @@ const res = (over: Partial<ExistingReservation> = {}): ExistingReservation => ({
 // --- enumerateTableOptions ------------------------------------------------
 
 describe('enumerateTableOptions', () => {
+  const opts = (partySize: number, over: { tables?: TableInfo[]; combos?: TableCombo[] } = {}) =>
+    enumerateTableOptions({ tables: over.tables ?? tables(), partySize, combos: over.combos ?? combos() })
+  const groups = (o: ReturnType<typeof opts>) =>
+    o.filter((x) => x.tableIds.length > 1).map((x) => x.tableIds.join('+'))
+
   it('returns single tables that fit', () => {
-    const opts = enumerateTableOptions({ tables: tables(), partySize: 2, maxCombineTables: 3 })
-    const singles = opts.filter((o) => o.tableIds.length === 1).map((o) => o.tableIds[0]).sort()
+    const singles = opts(2).filter((o) => o.tableIds.length === 1).map((o) => o.tableIds[0]).sort()
     expect(singles).toEqual(['T1', 'T2', 'T3', 'T4', 'T5'])
   })
 
   it('excludes single tables that are too small', () => {
-    const opts = enumerateTableOptions({ tables: tables(), partySize: 5, maxCombineTables: 3 })
-    const singles = opts.filter((o) => o.tableIds.length === 1).map((o) => o.tableIds[0])
+    const singles = opts(5).filter((o) => o.tableIds.length === 1).map((o) => o.tableIds[0])
     expect(singles).toEqual(['T5']) // only the 6-top fits a party of 5 alone
   })
 
-  it('combines adjacent combinable tables for a large party', () => {
-    const opts = enumerateTableOptions({ tables: tables(), partySize: 8, maxCombineTables: 3 })
-    const combos = opts.filter((o) => o.tableIds.length > 1).map((o) => o.tableIds.join('+'))
-    expect(combos).toContain('T3+T4') // 4 + 4 = 8
+  it('uses the combination\'s own seat count, not the sum of its tables', () => {
+    // T1+T2+T3 sum to 8 seats, but the owner says the trio seats 10–12
+    const trio = opts(11).find((o) => o.tableIds.join('+') === 'T1+T2+T3')
+    expect(trio?.totalCapacity).toBe(12)
+    expect(trio?.waste).toBe(1)
+    // T1+T3 sum to 6 and seat 6; T1+T2 sum to 4 and seat 4
+    expect(groups(opts(6))).toEqual(['T1+T3', 'T3+T4'])
   })
 
-  it('does not combine non-adjacent tables', () => {
-    const opts = enumerateTableOptions({ tables: tables(), partySize: 8, maxCombineTables: 3 })
-    // T1+T4 are not connected — must never appear as a group
-    expect(opts.some((o) => o.tableIds.join('+') === 'T1+T4')).toBe(false)
+  it('only ever forms the configured combinations', () => {
+    // T2+T3 and T2+T4 would fit a party of 6 by seat sum, but are not configured
+    const g = groups(opts(6))
+    expect(g).not.toContain('T2+T3')
+    expect(g).not.toContain('T2+T4')
+    expect(groups(opts(8, { combos: [] }))).toEqual([])
   })
 
-  it('respects the maxCombineTables cap', () => {
-    const chain: TableInfo[] = [
-      { id: 'A', label: 'A', capacity: 2, combinable: true, combinesWith: ['B'], active: true, sortOrder: 1 },
-      { id: 'B', label: 'B', capacity: 2, combinable: true, combinesWith: ['A', 'C'], active: true, sortOrder: 2 },
-      { id: 'C', label: 'C', capacity: 2, combinable: true, combinesWith: ['B'], active: true, sortOrder: 3 },
-    ]
-    expect(enumerateTableOptions({ tables: chain, partySize: 6, maxCombineTables: 3 }).length).toBeGreaterThan(0)
-    expect(enumerateTableOptions({ tables: chain, partySize: 6, maxCombineTables: 2 })).toEqual([])
+  it('respects the minParty floor', () => {
+    expect(groups(opts(9))).not.toContain('T1+T2+T3') // trio is for 10–12
+    expect(groups(opts(10))).toContain('T1+T2+T3')
+  })
+
+  it('skips a combination when any member table is not free or inactive', () => {
+    const withoutT2 = tables().filter((t) => t.id !== 'T2')
+    expect(groups(opts(12, { tables: withoutT2 }))).toEqual([])
+    const t4Inactive = tables().map((t) => (t.id === 'T4' ? { ...t, active: false } : t))
+    expect(groups(opts(8, { tables: t4Inactive }))).toEqual([])
   })
 
   it('excludes inactive tables', () => {
     const ts = tables().map((t) => (t.id === 'T5' ? { ...t, active: false } : t))
-    const opts = enumerateTableOptions({ tables: ts, partySize: 5, maxCombineTables: 3 })
-    expect(opts.some((o) => o.tableIds.includes('T5'))).toBe(false)
+    expect(opts(5, { tables: ts }).some((o) => o.tableIds.includes('T5'))).toBe(false)
   })
 })
 
@@ -102,20 +123,20 @@ describe('pickBestFit', () => {
   })
 
   it('picks minimal waste — a party of 2 takes a 2-top, not a 4-top', () => {
-    const opts = enumerateTableOptions({ tables: tables(), partySize: 2, maxCombineTables: 3 })
+    const opts = enumerateTableOptions({ tables: tables(), partySize: 2, combos: combos() })
     const best = pickBestFit(opts)
     expect(best?.tableIds).toEqual(['T1']) // waste 0, fewest tables, lowest sortOrder
   })
 
   it('prefers fewer tables on a waste tie', () => {
-    const opts = enumerateTableOptions({ tables: tables(), partySize: 8, maxCombineTables: 3 })
+    const opts = enumerateTableOptions({ tables: tables(), partySize: 8, combos: combos() })
     const best = pickBestFit(opts)
-    expect(best?.tableIds).toEqual(['T3', 'T4']) // 2 tables beats the 3-table chain
+    expect(best?.tableIds).toEqual(['T3', 'T4']) // the only configured fit for 8
   })
 
   it('prefers a single big table over combining on a waste tie', () => {
-    // party 5: T5 (waste 1, 1 table) vs T2+T3 (waste 1, 2 tables)
-    const opts = enumerateTableOptions({ tables: tables(), partySize: 5, maxCombineTables: 3 })
+    // party 5: T5 (waste 1, 1 table) vs T1+T3 (seats 6, waste 1, 2 tables)
+    const opts = enumerateTableOptions({ tables: tables(), partySize: 5, combos: combos() })
     expect(pickBestFit(opts)?.tableIds).toEqual(['T5'])
   })
 })

@@ -29,7 +29,6 @@ export default async function SettingsPage() {
     maxPartyOnline: policy.maxPartyOnline,
     minLeadTimeHours: policy.minLeadTimeHours,
     advanceWindowDays: policy.advanceWindowDays,
-    maxCombineTables: policy.maxCombineTables,
     blackoutDates,
   }
 

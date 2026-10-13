@@ -54,13 +54,23 @@ export const BookingSettings: GlobalConfig = {
       ],
     },
     {
-      name: 'maxCombineTables',
-      type: 'number',
-      required: true,
-      defaultValue: 3,
-      min: 1,
-      max: 6,
-      admin: { description: 'Wie viele kombinierbare Tische maximal für eine Gruppe zusammengestellt werden dürfen.' },
+      name: 'tableCombos',
+      type: 'array',
+      label: 'Tisch-Kombinationen',
+      admin: {
+        description:
+          'Nur diese Tisch-Kombinationen darf das System für größere Gruppen zusammenstellen — mit eigener Personenzahl (z. B. Tisch 1 + 2 = 4 Personen).',
+      },
+      fields: [
+        { name: 'tables', type: 'relationship', relationTo: 'tables', hasMany: true, required: true, minRows: 2, label: 'Tische' },
+        {
+          type: 'row',
+          fields: [
+            { name: 'minParty', type: 'number', min: 1, max: 40, label: 'Ab Personen', admin: { description: 'Optional — kleinere Gruppen bekommen diese Kombination nicht.' } },
+            { name: 'maxParty', type: 'number', required: true, min: 1, max: 40, label: 'Bis Personen' },
+          ],
+        },
+      ],
     },
     {
       type: 'row',

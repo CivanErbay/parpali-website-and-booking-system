@@ -2,9 +2,8 @@ import type { CollectionConfig } from 'payload'
 
 /**
  * Physical tables. Capacity drives per-table availability (ADR-0012); the
- * seat-pool model is gone. `combinesWith` is an explicit adjacency relationship
- * — only tables the owner declares as physically joinable may be combined for
- * large parties. `read` is public so the pure availability logic and the public
+ * seat-pool model is gone. Which tables may be pushed together lives in the
+ * `tableCombos` list of the BookingSettings global. `read` is public so the pure availability logic and the public
  * booking API can see the floor plan; mutations require an authenticated user.
  */
 export const Tables: CollectionConfig = {
@@ -12,7 +11,7 @@ export const Tables: CollectionConfig = {
   labels: { singular: 'Tisch', plural: 'Tische' },
   admin: {
     useAsTitle: 'label',
-    defaultColumns: ['label', 'capacity', 'zone', 'combinable', 'active', 'sortOrder'],
+    defaultColumns: ['label', 'capacity', 'zone', 'active', 'sortOrder'],
     group: 'Gäste',
   },
   access: {
@@ -43,20 +42,8 @@ export const Tables: CollectionConfig = {
             { label: 'Außen', value: 'terrace' },
           ],
         },
-        { name: 'combinable', type: 'checkbox', defaultValue: false, label: 'Kombinierbar' },
         { name: 'active', type: 'checkbox', defaultValue: true, label: 'Aktiv' },
       ],
-    },
-    {
-      name: 'combinesWith',
-      type: 'relationship',
-      relationTo: 'tables',
-      hasMany: true,
-      label: 'Kombinierbar mit',
-      admin: {
-        description: 'Nur direkt benachbarte Tische, die physisch zusammengestellt werden können.',
-        condition: (_, siblingData) => Boolean(siblingData?.combinable),
-      },
     },
   ],
   indexes: [{ fields: ['active', 'sortOrder'] }],

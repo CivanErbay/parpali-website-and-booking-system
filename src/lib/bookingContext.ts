@@ -11,6 +11,7 @@ import type {
   HolidayOverride,
   BlackoutDate,
   TableInfo,
+  TableCombo,
   ExistingReservation,
 } from './availability'
 import type { ManageReservation, DayGridTable } from './dashboard'
@@ -40,8 +41,21 @@ export function mapPolicy(settings: unknown): BookingPolicy {
     maxPartyOnline: Number(s.maxPartyOnline ?? 8),
     minLeadTimeHours: Number(s.minLeadTimeHours ?? 2),
     advanceWindowDays: Number(s.advanceWindowDays ?? 60),
-    maxCombineTables: Number(s.maxCombineTables ?? 3),
+    tableCombos: mapTableCombos(s.tableCombos),
   }
+}
+
+/** Owner-defined combinations; entries with < 2 tables or no `maxParty` are dropped. */
+export function mapTableCombos(raw: unknown): TableCombo[] {
+  if (!Array.isArray(raw)) return []
+  return raw
+    .map((c) => rec(c))
+    .map((c) => ({
+      tableIds: relIds(c.tables),
+      minParty: c.minParty == null ? undefined : Number(c.minParty),
+      maxParty: Number(c.maxParty ?? 0),
+    }))
+    .filter((c) => c.tableIds.length >= 2 && c.maxParty > 0)
 }
 
 export function mapOpeningRules(hours: unknown): OpeningRule[] {
@@ -86,8 +100,6 @@ export function mapTables(docs: unknown[]): TableInfo[] {
       id: relId(t.id),
       label: String(t.label ?? ''),
       capacity: Number(t.capacity ?? 0),
-      combinable: Boolean(t.combinable),
-      combinesWith: relIds(t.combinesWith),
       active: Boolean(t.active),
       sortOrder: Number(t.sortOrder ?? 0),
     }

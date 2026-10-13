@@ -25,7 +25,6 @@ export async function POST(req: Request): Promise<NextResponse> {
     const maxPartyOnline = intField(b.maxPartyOnline, 1, 100)
     const minLeadTimeHours = intField(b.minLeadTimeHours, 0, 720)
     const advanceWindowDays = intField(b.advanceWindowDays, 1, 365)
-    const maxCombineTables = intField(b.maxCombineTables, 1, 6)
 
     if (
       slotMinutes === null ||
@@ -33,8 +32,7 @@ export async function POST(req: Request): Promise<NextResponse> {
       tableHoldMinutes === null ||
       maxPartyOnline === null ||
       minLeadTimeHours === null ||
-      advanceWindowDays === null ||
-      maxCombineTables === null
+      advanceWindowDays === null
     ) {
       return NextResponse.json(
         { error: 'Bitte alle Felder mit gültigen Werten ausfüllen.' },
@@ -62,7 +60,6 @@ export async function POST(req: Request): Promise<NextResponse> {
           maxPartyOnline,
           minLeadTimeHours,
           advanceWindowDays,
-          maxCombineTables,
           blackoutDates,
         },
       })
