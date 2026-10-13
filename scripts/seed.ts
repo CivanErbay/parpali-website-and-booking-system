@@ -92,7 +92,6 @@ const BOOKING_SETTINGS_DATA = {
   maxPartyOnline: 8,
   minLeadTimeHours: 2,
   advanceWindowDays: 60,
-  maxCombineTables: 3,
   blackoutDates: [],
   confirmationCopy: {
     thanks: 'Vielen Dank für deine Reservierung. Wir freuen uns auf deinen Besuch.',
@@ -102,22 +101,15 @@ const BOOKING_SETTINGS_DATA = {
 
 /**
  * Default floor plan from the client meeting (2026-05): ~30 numbered tables,
- * mostly 2-tops (combinable) plus some 4-tops. `combine` lists physically
- * adjacent tables by label (resolved to relationship ids in a second pass).
- *
- * Sensible default adjacency so combining works out of the box — the owner
- * fine-tunes which tables actually push together in /manage → Tische:
- *  - the 22 two-tops form one combinable row (each adjacent to its neighbours),
- *    so up to `maxCombineTables` (3) push together → parties up to 6;
- *  - the 8 four-tops form a second combinable row → parties up to 8 (two 4-tops).
+ * mostly 2-tops plus some 4-tops. Which tables may be pushed together is NOT
+ * seeded — the owner maintains the allowed combinations in /manage → Tische
+ * (BookingSettings.tableCombos).
  */
 type SeedTable = {
   label: string
   capacity: number
   zone: 'main' | 'terrace' | 'bar' | 'private'
-  combinable: boolean
   sortOrder: number
-  combine: string[]
 }
 
 const TWO_TOP_COUNT = 22
@@ -125,19 +117,13 @@ const FOUR_TOP_COUNT = 8
 
 const SEED_TABLES: SeedTable[] = (() => {
   const out: SeedTable[] = []
-  const neighbours = (n: number, lo: number, hi: number): string[] => {
-    const c: string[] = []
-    if (n > lo) c.push(`T${n - 1}`)
-    if (n < hi) c.push(`T${n + 1}`)
-    return c
-  }
   for (let n = 1; n <= TWO_TOP_COUNT; n++) {
-    out.push({ label: `T${n}`, capacity: 2, zone: 'main', combinable: true, sortOrder: n, combine: neighbours(n, 1, TWO_TOP_COUNT) })
+    out.push({ label: `T${n}`, capacity: 2, zone: 'main', sortOrder: n })
   }
   const fourLo = TWO_TOP_COUNT + 1
   const fourHi = TWO_TOP_COUNT + FOUR_TOP_COUNT
   for (let n = fourLo; n <= fourHi; n++) {
-    out.push({ label: `T${n}`, capacity: 4, zone: 'main', combinable: true, sortOrder: n, combine: neighbours(n, fourLo, fourHi) })
+    out.push({ label: `T${n}`, capacity: 4, zone: 'main', sortOrder: n })
   }
   return out
 })()
@@ -565,12 +551,9 @@ async function upsertPage(
 }
 
 /**
- * Seed the floor plan in two passes: create/update every table first, then
- * resolve `combine` labels to relationship ids. Idempotent — keyed on `label`.
+ * Seed the floor plan: create/update every table. Idempotent — keyed on `label`.
  */
 async function seedTables(payload: Payload): Promise<void> {
-  const idByLabel = new Map<string, string | number>()
-
   for (const t of SEED_TABLES) {
     const existing = await payload.find({
       collection: 'tables',
@@ -581,27 +564,15 @@ async function seedTables(payload: Payload): Promise<void> {
       label: t.label,
       capacity: t.capacity,
       zone: t.zone,
-      combinable: t.combinable,
       active: true,
       sortOrder: t.sortOrder,
     }
     if (existing.docs.length > 0) {
-      const updated = await payload.update({ collection: 'tables', id: existing.docs[0].id, data })
-      idByLabel.set(t.label, updated.id)
+      await payload.update({ collection: 'tables', id: existing.docs[0].id, data })
     } else {
-      const created = await payload.create({ collection: 'tables', data })
-      idByLabel.set(t.label, created.id)
+      await payload.create({ collection: 'tables', data })
     }
     console.log(`  ✓ ${t.label} (${t.capacity}P)`)
-  }
-
-  for (const t of SEED_TABLES) {
-    if (t.combine.length === 0) continue
-    const id = idByLabel.get(t.label)
-    const combinesWith = t.combine.map((l) => idByLabel.get(l)).filter((v): v is string | number => v != null)
-    if (id != null) {
-      await payload.update({ collection: 'tables', id, data: { combinesWith } })
-    }
   }
 }
 

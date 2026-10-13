@@ -9,14 +9,11 @@ export interface TableRow {
   capacity: number
   zone: string
   sortOrder: number
-  combinable: boolean
   active: boolean
-  combinesWith: string[]
 }
 
-/** Editable row — only the fields the owner actually manages. Combining is
- * preconfigured and intentionally not surfaced here; `sortOrder` follows the
- * row's position in the list (no raw number to type). */
+/** Editable row — only the fields the owner actually manages. Combining lives in
+ * TableCombosManager; `sortOrder` follows the row's position in the list. */
 interface EditableTable {
   _key: string
   id: string

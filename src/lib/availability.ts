@@ -42,8 +42,6 @@ export interface TableInfo {
   id: string
   label: string
   capacity: number
-  combinable: boolean
-  combinesWith: string[] // ids of tables this one may be pushed together with
   active: boolean
   sortOrder: number
 }
@@ -65,7 +63,19 @@ export interface BookingPolicy {
   maxPartyOnline: number
   minLeadTimeHours: number
   advanceWindowDays: number
-  maxCombineTables: number
+  /** The only table groups that may be pushed together — each with its own party range. */
+  tableCombos: TableCombo[]
+}
+
+/**
+ * An owner-defined table combination. Its seat count is NOT the sum of the member
+ * tables (e.g. T1+T2 seat 4, T1+T3 seat 6, but T1+T2+T3 seat 12), so it carries
+ * its own `maxParty` and an optional `minParty` floor.
+ */
+export interface TableCombo {
+  tableIds: string[]
+  minParty?: number
+  maxParty: number
 }
 
 /** One viable way to seat a party: a single table or a combined group. */
@@ -107,45 +117,23 @@ export function toBlockMinutes(hhmm: string): number {
 }
 
 /**
- * Build an undirected adjacency map from the (possibly one-sided) `combinesWith`
- * declarations. If A lists B, A and B are adjacent even if B doesn't list A.
- * Only `combinable && active` tables are included.
- */
-function buildAdjacency(tables: TableInfo[]): Map<string, Set<string>> {
-  const eligible = new Map(
-    tables.filter((t) => t.combinable && t.active).map((t) => [t.id, t]),
-  )
-  const adj = new Map<string, Set<string>>()
-  for (const id of eligible.keys()) adj.set(id, new Set())
-  for (const t of eligible.values()) {
-    for (const other of t.combinesWith) {
-      if (!eligible.has(other) || other === t.id) continue
-      adj.get(t.id)!.add(other)
-      adj.get(other)!.add(t.id)
-    }
-  }
-  return adj
-}
-
-/**
  * Enumerate every table set that can seat `partySize`:
  *  - each active single table with capacity >= partySize, and
- *  - each connected group of combinable tables (size 2..maxCombineTables,
- *    walking only declared adjacency) whose summed capacity >= partySize.
- * Bounded DFS; `maxCombineTables` is the hard guard against combinatorial blowup.
+ *  - each owner-defined combination whose member tables are all free and whose
+ *    party range (`minParty`..`maxParty`) contains `partySize`.
+ * No other groupings are ever formed — only the configured combinations.
  */
 export function enumerateTableOptions(args: {
   tables: TableInfo[]
   partySize: number
-  maxCombineTables: number
+  combos: TableCombo[]
 }): TableOption[] {
-  const { tables, partySize, maxCombineTables } = args
+  const { tables, partySize, combos } = args
   if (partySize < 1) return []
 
   const byId = new Map(tables.filter((t) => t.active).map((t) => [t.id, t]))
   const options: TableOption[] = []
 
-  // Single tables
   for (const t of byId.values()) {
     if (t.capacity >= partySize) {
       options.push({
@@ -157,44 +145,17 @@ export function enumerateTableOptions(args: {
     }
   }
 
-  // Combined groups — connected subsets of the adjacency graph
-  const cap = Math.max(2, Math.min(maxCombineTables, byId.size))
-  if (cap >= 2) {
-    const adj = buildAdjacency(tables)
-    const seen = new Set<string>()
-
-    const grow = (members: string[]): void => {
-      const key = [...members].sort().join('|')
-      if (seen.has(key)) return
-      seen.add(key)
-
-      if (members.length >= 2) {
-        const memberTables = members.map((id) => byId.get(id)!).filter(Boolean)
-        if (memberTables.length === members.length) {
-          const totalCapacity = memberTables.reduce((s, t) => s + t.capacity, 0)
-          if (totalCapacity >= partySize) {
-            options.push({
-              tableIds: [...members].sort(),
-              totalCapacity,
-              waste: totalCapacity - partySize,
-              sortKey: memberTables.reduce((s, t) => s + t.sortOrder, 0),
-            })
-          }
-        }
-      }
-      if (members.length >= cap) return
-
-      const memberSet = new Set(members)
-      const candidates = new Set<string>()
-      for (const m of members) {
-        for (const n of adj.get(m) ?? []) {
-          if (!memberSet.has(n)) candidates.add(n)
-        }
-      }
-      for (const c of candidates) grow([...members, c])
-    }
-
-    for (const id of adj.keys()) grow([id])
+  for (const c of combos) {
+    if (c.tableIds.length < 2) continue
+    if (partySize > c.maxParty || partySize < (c.minParty ?? 1)) continue
+    const members = c.tableIds.map((id) => byId.get(id))
+    if (members.some((m) => !m)) continue
+    options.push({
+      tableIds: [...c.tableIds].sort(),
+      totalCapacity: c.maxParty,
+      waste: c.maxParty - partySize,
+      sortKey: members.reduce((s, t) => s + t!.sortOrder, 0),
+    })
   }
 
   return options
@@ -392,7 +353,7 @@ export function getOpenSlots(args: {
       const options = enumerateTableOptions({
         tables: freeTables,
         partySize,
-        maxCombineTables: policy.maxCombineTables,
+        combos: policy.tableCombos,
       })
       const best = pickBestFit(options)
       if (best) {
@@ -449,7 +410,7 @@ export function assignTableForBooking(args: {
   const options = enumerateTableOptions({
     tables: freeTables,
     partySize,
-    maxCombineTables: policy.maxCombineTables,
+    combos: policy.tableCombos,
   })
   const best = pickBestFit(options)
   if (!best) return { ok: false, reason: 'no-fit' }

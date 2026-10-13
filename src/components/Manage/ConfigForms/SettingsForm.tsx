@@ -11,7 +11,6 @@ export interface SettingsValues {
   maxPartyOnline: number
   minLeadTimeHours: number
   advanceWindowDays: number
-  maxCombineTables: number
   blackoutDates: { date: string; reason: string }[]
 }
 
@@ -25,7 +24,6 @@ const NUM_FIELDS: { key: NumKey; label: string; hint: string }[] = [
   { key: 'minLeadTimeHours', label: 'Mindest-Vorlaufzeit (Std)', hint: 'Wie kurzfristig online gebucht werden darf.' },
   { key: 'maxPartyOnline', label: 'Max. Gruppe online', hint: 'Größere Gruppen müssen anrufen.' },
   { key: 'advanceWindowDays', label: 'Buchbar im Voraus (Tage)', hint: 'Wie weit in die Zukunft.' },
-  { key: 'maxCombineTables', label: 'Max. kombinierte Tische', hint: 'Obergrenze für zusammengestellte Tische.' },
   { key: 'maxSeatsPerSlot', label: 'Gäste-Obergrenze pro Slot', hint: 'Küchen-Taktung — hoch setzen zum Deaktivieren.' },
 ]
 

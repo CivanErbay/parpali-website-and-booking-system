@@ -10,12 +10,6 @@ export interface TableInput {
   zone: Zone
   sortOrder: number
   active: boolean
-  // Combining is preconfigured (seed / Payload admin), not edited via the
-  // simplified manage UI. These are only included when the caller actually
-  // sends them, so a normal save preserves existing combinesWith (Payload's
-  // update is a partial patch — omitted fields keep their stored value).
-  combinable?: boolean
-  combinesWith?: string[]
 }
 
 /** Validate and normalise a table payload, shared by create and update. */
@@ -35,19 +29,7 @@ export function parseTableBody(
   const sortOrder = Number.isFinite(Number(b.sortOrder)) ? Math.round(Number(b.sortOrder)) : 0
   const active = b.active === undefined ? true : Boolean(b.active)
 
-  const data: TableInput = { label, capacity, zone, sortOrder, active }
-
-  // Only touch combining when the caller explicitly sends it.
-  if (b.combinable !== undefined) {
-    const combinable = Boolean(b.combinable)
-    data.combinable = combinable
-    data.combinesWith =
-      combinable && Array.isArray(b.combinesWith)
-        ? b.combinesWith.filter((x): x is string => typeof x === 'string')
-        : []
-  }
-
-  return { ok: true, data }
+  return { ok: true, data: { label, capacity, zone, sortOrder, active } }
 }
 
 /** POST /api/manage/tables — create a table. */
