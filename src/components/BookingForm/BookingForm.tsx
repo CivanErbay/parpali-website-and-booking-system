@@ -247,6 +247,12 @@ export function BookingForm({ phone, maxPartyOnline = 8 }: BookingFormProps) {
               {stayMinutes > defaultStay
                 ? `Für ${formatStay(stayMinutes)} sind an diesem Tag keine Zeitslots mehr verfügbar — versuch es mit einer kürzeren Aufenthaltsdauer.`
                 : 'Für diesen Tag und diese Gruppengröße sind aktuell keine Zeitslots verfügbar.'}
+              {phone ? (
+                <>
+                  {' '}Ruf uns gern an — oft finden wir trotzdem einen Platz:{' '}
+                  <a className={styles.linkInline} href={`tel:${phone}`}>{phone}</a>
+                </>
+              ) : null}
             </p>
           ) : (
             <ul className={styles.slotGrid} role="radiogroup" aria-label="Verfügbare Zeitslots">
